@@ -60,39 +60,63 @@ class AppOpenAdManager {
     }
     if (_isShowingAd) {
       log('Ad already showing');
+      onComplete();
       return;
     }
 
     if (!isAdAvailable) {
       log('Ad not ready yet, skipping and loading a fresh one');
       onComplete();
-      loadAd();
+      try {
+        loadAd();
+      } catch (e) {
+        log('Error reloading ad: $e');
+      }
       return;
     }
 
-    _appOpenAd!.fullScreenContentCallback = FullScreenContentCallback(
-      onAdShowedFullScreenContent: (ad) {
-        _isShowingAd = true;
-        log('App Open Ad showed');
-      },
-      onAdFailedToShowFullScreenContent: (ad, error) {
-        log('App Open Ad failed to show: $error');
-        _isShowingAd = false;
-        ad.dispose();
-        _appOpenAd = null;
+    bool completed = false;
+    void safeComplete() {
+      if (!completed) {
+        completed = true;
         onComplete();
-        loadAd();
-      },
-      onAdDismissedFullScreenContent: (ad) {
-        log('App Open Ad dismissed');
-        _isShowingAd = false;
-        ad.dispose();
-        _appOpenAd = null;
-        onComplete();
-        loadAd(); // agla load karo taake next time bhi ready ho
-      },
-    );
+      }
+    }
 
-    _appOpenAd!.show();
+    try {
+      _appOpenAd!.fullScreenContentCallback = FullScreenContentCallback(
+        onAdShowedFullScreenContent: (ad) {
+          _isShowingAd = true;
+          log('App Open Ad showed');
+        },
+        onAdFailedToShowFullScreenContent: (ad, error) {
+          log('App Open Ad failed to show: $error');
+          _isShowingAd = false;
+          try {
+            ad.dispose();
+          } catch (_) {}
+          _appOpenAd = null;
+          safeComplete();
+          loadAd();
+        },
+        onAdDismissedFullScreenContent: (ad) {
+          log('App Open Ad dismissed');
+          _isShowingAd = false;
+          try {
+            ad.dispose();
+          } catch (_) {}
+          _appOpenAd = null;
+          safeComplete();
+          loadAd();
+        },
+      );
+
+      _appOpenAd!.show();
+    } catch (e) {
+      log('Fatal error while showing AppOpenAd: $e');
+      _isShowingAd = false;
+      _appOpenAd = null;
+      safeComplete();
+    }
   }
 }
