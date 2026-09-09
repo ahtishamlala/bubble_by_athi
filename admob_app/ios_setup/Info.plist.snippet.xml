@@ -1,0 +1,24 @@
+<!--
+  Ye lines apne project ki file `ios/Runner/Info.plist` me
+  <dict> ... </dict> ke andar add karein.
+-->
+
+<!-- 1. Aapki AdMob App ID -->
+<key>GADApplicationIdentifier</key>
+<string>ca-app-pub-3993277664656708~3314385392</string>
+
+<!-- 2. iOS 14+ par ads dikhane ke liye tracking permission ka reason -->
+<key>NSUserTrackingUsageDescription</key>
+<string>Ye data aapko relevant ads dikhane ke liye use hoga.</string>
+
+<!-- 3. Google/AdMob ke SKAdNetwork IDs (attribution ke liye zaroori)
+     Poori list yahan se copy karein: 
+     https://developers.google.com/admob/ios/mediation
+     Neeche sirf Google ki apni ID ka example diya hai -->
+<key>SKAdNetworkItems</key>
+<array>
+    <dict>
+        <key>SKAdNetworkIdentifier</key>
+        <string>cstr6suwn9.skadnetwork</string>
+    </dict>
+</array>

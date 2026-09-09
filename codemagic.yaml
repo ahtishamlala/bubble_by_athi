@@ -1,0 +1,27 @@
+workflows:
+  ios-release:
+    name: iOS Release Build
+    instance_type: mac_mini_m2
+    max_build_duration: 30
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Get Flutter packages
+        script: flutter pub get
+      - name: Install CocoaPods
+        script: |
+          cd ios
+          pod install
+      - name: Build iOS
+        script: |
+          flutter build ios --release --no-codesign
+      - name: Package IPA
+        script: |
+          mkdir -p Payload
+          cp -r build/ios/iphoneos/Runner.app Payload/
+          zip -r Bubble_by_Athi.ipa Payload
+    artifacts:
+      - Bubble_by_Athi.ipa
+      - build/ios/iphoneos/Runner.app
