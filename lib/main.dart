@@ -53,7 +53,7 @@ class MyApp extends StatelessWidget {
         colorSchemeSeed: const Color(0xFF6C5CE7),
         scaffoldBackgroundColor: const Color(0xFF1E272E),
       ),
-      home: const SplashGate(),
+      home: const MainMenuScreen(),
     );
   }
 }

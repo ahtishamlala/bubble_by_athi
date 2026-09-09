@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import '../app_open_ad_manager.dart';
 import '../banner_ad_widget.dart';
 import '../game/models/bubble_color.dart';
 import '../game/models/game_progress.dart';
@@ -16,6 +17,7 @@ class MainMenuScreen extends StatefulWidget {
 
 class _MainMenuScreenState extends State<MainMenuScreen> with SingleTickerProviderStateMixin {
   late AnimationController _animController;
+  final AppOpenAdManager _appOpenAdManager = AppOpenAdManager();
 
   @override
   void initState() {
@@ -24,6 +26,15 @@ class _MainMenuScreenState extends State<MainMenuScreen> with SingleTickerProvid
       vsync: this,
       duration: const Duration(seconds: 4),
     )..repeat();
+
+    // UI render hone ke baad safe tareeqe se Ad load karo
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      try {
+        _appOpenAdManager.loadAd();
+      } catch (e) {
+        debugPrint('AppOpenAd load in MainMenu error: $e');
+      }
+    });
   }
 
   @override
