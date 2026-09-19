@@ -8,17 +8,11 @@ on:
 jobs:
   build-ios:
     name: Build iOS App (.ipa)
-    runs-on: macos-latest
+    runs-on: macos-14
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'zulu'
-          java-version: '17'
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -26,16 +20,27 @@ jobs:
           channel: 'stable'
           cache: true
 
+      - name: Precache iOS Artifacts
+        run: flutter precache --ios
+
       - name: Install Dependencies
         run: flutter pub get
 
-      - name: Build iOS IPA (Unsigned / Sideloadable)
+      - name: Setup & Install CocoaPods
         run: |
-          flutter build ios --release --no-codesign
+          cd ios
+          pod install --repo-update
+          cd ..
+
+      - name: Build iOS Application
+        run: flutter build ios --release --no-codesign
+
+      - name: Package IPA for Sideloading
+        run: |
           cd build/ios/iphoneos
           mkdir -p Payload
           cp -r Runner.app Payload/
-          zip -r Bubble_by_Athi.ipa Payload
+          zip -r -y Bubble_by_Athi.ipa Payload
           mv Bubble_by_Athi.ipa ../../../
 
       - name: Upload IPA Artifact
