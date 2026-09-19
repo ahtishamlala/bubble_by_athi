@@ -20,23 +20,14 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: Clean Configs & Configure Flutter
+      - name: Configure Flutter
         run: |
-          rm -f ios/Flutter/Generated.xcconfig
-          rm -f ios/Flutter/flutter_export_environment.sh
-          rm -rf ios/Flutter/ephemeral
           flutter config --no-enable-swift-package-manager
           flutter precache --ios
 
       - name: Install Dependencies
         run: |
           flutter pub get
-
-      - name: Install CocoaPods
-        run: |
-          cd ios
-          pod install
-          cd ..
 
       - name: Build iOS Application (Unsigned)
         run: |
