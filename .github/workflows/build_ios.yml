@@ -20,16 +20,23 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: Configure Flutter & Disable SPM
+      - name: Clean Configs & Configure Flutter
         run: |
+          rm -f ios/Flutter/Generated.xcconfig
+          rm -f ios/Flutter/flutter_export_environment.sh
+          rm -rf ios/Flutter/ephemeral
           flutter config --no-enable-swift-package-manager
-          mkdir -p build/ios/SourcePackages
           flutter precache --ios
 
       - name: Install Dependencies
         run: |
-          mkdir -p build/ios/SourcePackages
           flutter pub get
+
+      - name: Install CocoaPods
+        run: |
+          cd ios
+          pod install
+          cd ..
 
       - name: Build iOS Application (Unsigned)
         run: |
