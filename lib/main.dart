@@ -2,46 +2,67 @@ import 'dart:async';
 import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-import 'app_open_ad_manager.dart';
+import 'ad_manager.dart';
 import 'game/models/game_progress.dart';
 import 'screens/main_menu_screen.dart';
 
-Future<void> main() async {
-  runZonedGuarded(() async {
-    WidgetsFlutterBinding.ensureInitialized();
+void main() {
+  // 1. Ensure Flutter bindings are ready at root level
+  WidgetsFlutterBinding.ensureInitialized();
 
-    FlutterError.onError = (FlutterErrorDetails details) {
-      debugPrint('Flutter error caught: ${details.exceptionAsString()}');
-    };
-    PlatformDispatcher.instance.onError = (error, stack) {
-      debugPrint('Platform dispatcher error caught: $error');
-      return true;
-    };
+  // 2. Modern crash-proof error handlers (prevents fatal app termination)
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.presentError(details);
+    debugPrint('Flutter error caught safely: ${details.exceptionAsString()}');
+  };
 
-    try {
-      await GameProgress().init();
-    } catch (e) {
-      debugPrint('GameProgress init error: $e');
-    }
+  PlatformDispatcher.instance.onError = (error, stack) {
+    debugPrint('Platform dispatcher error handled safely: $error');
+    return true; // Handled, do not crash process
+  };
 
-    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-      try {
-        await MobileAds.instance.initialize();
-      } catch (e) {
-        debugPrint('MobileAds initialization error: $e');
-      }
-    }
-
-    runApp(const MyApp());
-  }, (error, stack) {
-    debugPrint('Top-level zone error: $error');
+  // 3. Initialize persistent game progress in background/safe mode
+  GameProgress().init().catchError((e) {
+    debugPrint('GameProgress init error caught: $e');
   });
+
+  // 4. Initialize AdMob via AdManager safely
+  if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+    unawaited(AdManager.instance.initialize());
+  }
+
+  // 5. Mount the app UI immediately
+  runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Safely show App Open Ad when returning to the app from background
+      AdManager.instance.showAppOpenAd();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,96 +75,6 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color(0xFF1E272E),
       ),
       home: const MainMenuScreen(),
-    );
-  }
-}
-
-/// App Open Ad load + show karta hai, uske baad MainMenuScreen par le jata hai.
-class SplashGate extends StatefulWidget {
-  const SplashGate({super.key});
-
-  @override
-  State<SplashGate> createState() => _SplashGateState();
-}
-
-class _SplashGateState extends State<SplashGate> {
-  final AppOpenAdManager _appOpenAdManager = AppOpenAdManager();
-  bool _navigated = false;
-
-  @override
-  void initState() {
-    super.initState();
-    try {
-      _appOpenAdManager.loadAd(onAdLoaded: _showAdAndProceed);
-    } catch (e) {
-      debugPrint('SplashGate loadAd error: $e');
-    }
-
-    // 2 second baad automatically game menu me le jaye bina kisi rukawat ke
-    Future.delayed(const Duration(milliseconds: 2000), _showAdAndProceed);
-  }
-
-  void _showAdAndProceed() {
-    if (_navigated) return;
-    _navigated = true;
-
-    try {
-      _appOpenAdManager.showAdIfAvailable(
-        onComplete: _goToMainMenu,
-      );
-    } catch (e) {
-      debugPrint('Error showing ad: $e');
-      _goToMainMenu();
-    }
-  }
-
-  void _goToMainMenu() {
-    if (!mounted) return;
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const MainMenuScreen()),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFF2C3E50), Color(0xFF341F97), Color(0xFF1E272E)],
-          ),
-        ),
-        child: const Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.bubble_chart_rounded, color: Color(0xFF1DD1A1), size: 84),
-              SizedBox(height: 16),
-              Text(
-                'BUBBLE by ATHI',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 26,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 2,
-                ),
-              ),
-              SizedBox(height: 8),
-              Text(
-                'Loading Fun & Bubbles...',
-                style: TextStyle(color: Colors.white70, fontSize: 13),
-              ),
-              SizedBox(height: 28),
-              CircularProgressIndicator(
-                color: Color(0xFF1DD1A1),
-                strokeWidth: 3,
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

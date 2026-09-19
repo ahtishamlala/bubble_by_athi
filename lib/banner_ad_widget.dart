@@ -2,8 +2,9 @@ import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'ad_manager.dart';
 
-/// Home screen ke neeche dikhne wala Banner Ad widget
+/// Home screen & Game screen bottom AdMob Banner widget (100% Live Production Ad)
 class BannerAdWidget extends StatefulWidget {
   const BannerAdWidget({super.key});
 
@@ -12,11 +13,9 @@ class BannerAdWidget extends StatefulWidget {
 }
 
 class _BannerAdWidgetState extends State<BannerAdWidget> {
-  // 👉 Aapka Banner Ad Unit ID
-  static const String _adUnitId = 'ca-app-pub-3993277664656708/1893492511';
-
   BannerAd? _bannerAd;
   bool _isLoaded = false;
+  bool _isDisposed = false;
   bool get _isMobile => !kIsWeb && (Platform.isAndroid || Platform.isIOS);
 
   @override
@@ -27,62 +26,70 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
     }
   }
 
-  void _loadBannerAd() {
-    _bannerAd = BannerAd(
-      adUnitId: _adUnitId,
-      size: AdSize.banner,
-      request: const AdRequest(),
-      listener: BannerAdListener(
-        onAdLoaded: (ad) {
-          if (mounted) setState(() => _isLoaded = true);
-        },
-        onAdFailedToLoad: (ad, error) {
-          ad.dispose();
-          debugPrint('Banner ad failed to load: $error');
-        },
-      ),
-    )..load();
+  void _loadBannerAd() async {
+    if (_isDisposed) return;
+    await AdManager.instance.initializationFuture;
+    if (_isDisposed) return;
+
+    // Use strictly live production Banner Ad Unit ID provided by User
+    const adUnit = AdManager.bannerAdUnitId;
+
+    try {
+      _bannerAd = BannerAd(
+        adUnitId: adUnit,
+        size: AdSize.banner,
+        request: const AdRequest(),
+        listener: BannerAdListener(
+          onAdLoaded: (ad) {
+            debugPrint('[BannerAdWidget] LIVE banner ad loaded successfully!');
+            if (mounted && !_isDisposed) {
+              setState(() => _isLoaded = true);
+            }
+          },
+          onAdFailedToLoad: (ad, error) {
+            debugPrint('[BannerAdWidget] LIVE banner ad failed to load: $error');
+            try {
+              ad.dispose();
+            } catch (_) {}
+            _bannerAd = null;
+            if (mounted && !_isDisposed) {
+              setState(() => _isLoaded = false);
+            }
+            // Retry loading production banner ad after 15 seconds
+            Future.delayed(const Duration(seconds: 15), () {
+              if (mounted && !_isDisposed && !_isLoaded) {
+                _loadBannerAd();
+              }
+            });
+          },
+        ),
+      )..load();
+    } catch (e) {
+      debugPrint('Error creating banner ad: $e');
+      _bannerAd = null;
+    }
   }
 
   @override
   void dispose() {
-    _bannerAd?.dispose();
+    _isDisposed = true;
+    try {
+      _bannerAd?.dispose();
+    } catch (_) {}
+    _bannerAd = null;
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     if (!_isMobile) {
-      return Container(
-        height: 50,
-        alignment: Alignment.center,
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: const Color(0xFF6C5CE7).withValues(alpha: 0.3)),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.ads_click_rounded, size: 18, color: Color(0xFF6C5CE7)),
-            SizedBox(width: 8),
-            Text(
-              'AdMob Banner Preview (Active on Android/iOS)',
-              style: TextStyle(
-                color: Color(0xFF6C5CE7),
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-    if (!_isLoaded || _bannerAd == null) {
-      // Ad load hone tak halki si jagah reserve rakhte hain
       return const SizedBox(height: 50);
     }
+
+    if (!_isLoaded || _bannerAd == null) {
+      return const SizedBox(height: 50);
+    }
+
     return Container(
       alignment: Alignment.center,
       width: _bannerAd!.size.width.toDouble(),

@@ -82,6 +82,12 @@ class GameController extends ChangeNotifier {
     nextBubble = _getRandomAvailableColor();
   }
 
+  void addExtraShots(int count) {
+    remainingShots += count;
+    state = GameState.playing;
+    notifyListeners();
+  }
+
   void updateLayout(Size size) {
     boardWidth = size.width;
     boardHeight = size.height;
@@ -414,6 +420,7 @@ class GameController extends ChangeNotifier {
     score += bombScore;
     final center = GridPosition.getCenterOffset(centerCell.row, centerCell.col, bubbleRadius, gridStartX);
     particleSystem.spawnScore(center, 'BOOM! +$bombScore', const Color(0xFFFF5252), scale: 1.4);
+    _hapticHeavy();
     _dropFloatingBubbles();
   }
 
@@ -433,6 +440,7 @@ class GameController extends ChangeNotifier {
 
     final fireScore = count * 50;
     score += fireScore;
+    _hapticHeavy();
     _dropFloatingBubbles();
   }
 
@@ -567,6 +575,12 @@ class GameController extends ChangeNotifier {
   void _hapticMedium() {
     if (GameProgress().hapticsEnabled) {
       HapticFeedback.mediumImpact();
+    }
+  }
+
+  void _hapticHeavy() {
+    if (GameProgress().hapticsEnabled) {
+      HapticFeedback.heavyImpact();
     }
   }
 }

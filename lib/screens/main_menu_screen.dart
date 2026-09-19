@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import '../app_open_ad_manager.dart';
+import '../ad_manager.dart';
 import '../banner_ad_widget.dart';
 import '../game/models/bubble_color.dart';
 import '../game/models/game_progress.dart';
@@ -17,7 +17,6 @@ class MainMenuScreen extends StatefulWidget {
 
 class _MainMenuScreenState extends State<MainMenuScreen> with SingleTickerProviderStateMixin {
   late AnimationController _animController;
-  final AppOpenAdManager _appOpenAdManager = AppOpenAdManager();
 
   @override
   void initState() {
@@ -27,12 +26,10 @@ class _MainMenuScreenState extends State<MainMenuScreen> with SingleTickerProvid
       duration: const Duration(seconds: 4),
     )..repeat();
 
-    // UI render hone ke baad safe tareeqe se Ad load karo
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      try {
-        _appOpenAdManager.loadAd();
-      } catch (e) {
-        debugPrint('AppOpenAd load in MainMenu error: $e');
+    // Show App Open Ad on cold start after brief delay for smooth UI mounting
+    Future.delayed(const Duration(milliseconds: 1500), () {
+      if (mounted) {
+        AdManager.instance.showAppOpenAd(waitForLoad: true);
       }
     });
   }
@@ -232,6 +229,47 @@ class _MainMenuScreenState extends State<MainMenuScreen> with SingleTickerProvid
                               ),
                             ),
                           ),
+
+                          const SizedBox(height: 16),
+
+                          // Rewarded Video Ad Button (Free Coins)
+                          SizedBox(
+                            width: 220,
+                            height: 48,
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                AdManager.instance.showRewardedAd(
+                                  context: context,
+                                  onUserEarnedReward: (reward) {
+                                    GameProgress().addCoins(50);
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('🎉 +50 Coins Added! Thanks for watching!'),
+                                          backgroundColor: Color(0xFF1DD1A1),
+                                          duration: Duration(seconds: 3),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                );
+                              },
+                              icon: const Icon(Icons.video_library_rounded, color: Color(0xFFFECA57), size: 20),
+                              label: const Text(
+                                'FREE 50 COINS 🎬',
+                                style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF5F27CD),
+                                foregroundColor: Colors.white,
+                                elevation: 6,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                  side: const BorderSide(color: Color(0xFFFECA57), width: 1.5),
+                                ),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -276,6 +314,16 @@ class _MainMenuScreenState extends State<MainMenuScreen> with SingleTickerProvid
                     value: p.hapticsEnabled,
                     onChanged: (_) => p.toggleHaptics(),
                   ),
+                ),
+                const Divider(color: Colors.white24),
+                ListTile(
+                  leading: const Icon(Icons.analytics_outlined, color: Color(0xFF1DD1A1)),
+                  title: const Text('AdMob Live Inspector', style: TextStyle(color: Colors.white)),
+                  subtitle: const Text('Check live ad status & Google fill', style: TextStyle(color: Colors.white54, fontSize: 11)),
+                  trailing: const Icon(Icons.chevron_right_rounded, color: Colors.white54),
+                  onTap: () {
+                    AdManager.instance.openAdInspector(context);
+                  },
                 ),
                 const Divider(color: Colors.white24),
                 TextButton.icon(

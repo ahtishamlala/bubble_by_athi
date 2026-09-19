@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ad_manager.dart';
 import '../game/models/game_progress.dart';
 
 class VictoryDialog extends StatelessWidget {
@@ -146,12 +147,14 @@ class VictoryDialog extends StatelessWidget {
 
 class GameOverDialog extends StatelessWidget {
   final int score;
+  final VoidCallback? onRevive;
   final VoidCallback onRetry;
   final VoidCallback onExitToMenu;
 
   const GameOverDialog({
     super.key,
     required this.score,
+    this.onRevive,
     required this.onRetry,
     required this.onExitToMenu,
   });
@@ -196,7 +199,40 @@ class GameOverDialog extends StatelessWidget {
               'Score: $score',
               style: const TextStyle(color: Colors.white70, fontSize: 16),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
+
+            // Rewarded Ad Revive Button (+5 Extra Shots)
+            if (onRevive != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 14),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      AdManager.instance.showRewardedAd(
+                        context: context,
+                        onUserEarnedReward: (reward) {
+                          onRevive!();
+                        },
+                      );
+                    },
+                    icon: const Icon(Icons.video_library_rounded, color: Color(0xFFFECA57), size: 22),
+                    label: const Text(
+                      '+5 EXTRA SHOTS (WATCH VIDEO 🎬)',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1DD1A1),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [

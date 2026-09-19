@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import '../ad_manager.dart';
 import '../banner_ad_widget.dart';
 import '../game/game_controller.dart';
 import '../game/models/bubble_color.dart';
@@ -55,54 +56,95 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
   }
 
   void _checkGameState() {
-    if (_dialogShown) return;
+    if (_dialogShown || !mounted) return;
 
     if (_controller.state == GameState.won) {
       _dialogShown = true;
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (_) => VictoryDialog(
-          levelNumber: _controller.levelData.levelNumber,
-          score: _controller.score,
-          stars: _controller.calculateStars(),
-          onNextLevel: () {
-            Navigator.of(context).pop();
-            setState(() {
-              _startLevel(_controller.levelData.levelNumber + 1);
-            });
-          },
-          onRetry: () {
-            Navigator.of(context).pop();
-            setState(() {
-              _startLevel(_controller.levelData.levelNumber);
-            });
-          },
-          onExitToMenu: () {
-            Navigator.of(context).pop();
-            Navigator.of(context).pop();
-          },
-        ),
-      );
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => VictoryDialog(
+            levelNumber: _controller.levelData.levelNumber,
+            score: _controller.score,
+            stars: _controller.calculateStars(),
+            onNextLevel: () {
+              Navigator.of(context).pop();
+              AdManager.instance.showInterstitialAd(
+                onComplete: () {
+                  if (mounted) {
+                    setState(() {
+                      _startLevel(_controller.levelData.levelNumber + 1);
+                    });
+                  }
+                },
+              );
+            },
+            onRetry: () {
+              Navigator.of(context).pop();
+              AdManager.instance.showInterstitialAd(
+                onComplete: () {
+                  if (mounted) {
+                    setState(() {
+                      _startLevel(_controller.levelData.levelNumber);
+                    });
+                  }
+                },
+              );
+            },
+            onExitToMenu: () {
+              Navigator.of(context).pop();
+              AdManager.instance.showInterstitialAd(
+                onComplete: () {
+                  if (mounted) {
+                    Navigator.of(context).pop();
+                  }
+                },
+              );
+            },
+          ),
+        );
+      });
     } else if (_controller.state == GameState.lost) {
       _dialogShown = true;
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (_) => GameOverDialog(
-          score: _controller.score,
-          onRetry: () {
-            Navigator.of(context).pop();
-            setState(() {
-              _startLevel(_controller.levelData.levelNumber);
-            });
-          },
-          onExitToMenu: () {
-            Navigator.of(context).pop();
-            Navigator.of(context).pop();
-          },
-        ),
-      );
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => GameOverDialog(
+            score: _controller.score,
+            onRevive: () {
+              Navigator.of(context).pop();
+              _dialogShown = false;
+              _controller.addExtraShots(5);
+            },
+            onRetry: () {
+              Navigator.of(context).pop();
+              AdManager.instance.showInterstitialAd(
+                onComplete: () {
+                  if (mounted) {
+                    setState(() {
+                      _startLevel(_controller.levelData.levelNumber);
+                    });
+                  }
+                },
+              );
+            },
+            onExitToMenu: () {
+              Navigator.of(context).pop();
+              AdManager.instance.showInterstitialAd(
+                onComplete: () {
+                  if (mounted) {
+                    Navigator.of(context).pop();
+                  }
+                },
+              );
+            },
+          ),
+        );
+      });
     }
   }
 

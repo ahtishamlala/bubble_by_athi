@@ -21,10 +21,10 @@ class BubblePainter {
     final dark = type.darkShade.withValues(alpha: opacity);
     final light = type.lightHighlight.withValues(alpha: opacity);
 
-    // 1. Subtle drop shadow
+    // 1. Subtle drop shadow (Hardware accelerated, no blur filter lag)
     final shadowPaint = Paint()
-      ..color = Colors.black.withValues(alpha: 0.18 * opacity)
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3);
+      ..color = Colors.black.withValues(alpha: 0.16 * opacity)
+      ..style = PaintingStyle.fill;
     canvas.drawCircle(center.translate(0, r * 0.12), r * 0.95, shadowPaint);
 
     // 2. Base Sphere with Radial Gradient (Illuminated 3D sphere)
@@ -67,36 +67,30 @@ class BubblePainter {
       ..isAntiAlias = true;
     canvas.drawCircle(center, r * 0.9, bouncePaint);
 
-    // 5. Specular Top-Left Highlight (Glossy crescent / oval reflection)
+    // 5. Specular Top-Left Highlight (Fast vector crescent/oval)
     if (showHighlight) {
       final highlightCenter = Offset(
-        center.dx - (r * 0.32),
-        center.dy - (r * 0.32),
+        center.dx - (r * 0.3),
+        center.dy - (r * 0.3),
       );
-      final highlightRadiusX = r * 0.35;
-      final highlightRadiusY = r * 0.22;
 
       final highlightPaint = Paint()
         ..color = Colors.white.withValues(alpha: 0.85 * opacity)
         ..isAntiAlias = true;
 
-      canvas.save();
-      canvas.translate(highlightCenter.dx, highlightCenter.dy);
-      canvas.rotate(-math.pi / 4.2);
       canvas.drawOval(
         Rect.fromCenter(
-          center: Offset.zero,
-          width: highlightRadiusX * 2,
-          height: highlightRadiusY * 2,
+          center: highlightCenter,
+          width: r * 0.5,
+          height: r * 0.35,
         ),
         highlightPaint,
       );
-      canvas.restore();
 
       // Mini secondary specular dot
       final dotCenter = Offset(
-        center.dx + (r * 0.32),
-        center.dy + (r * 0.32),
+        center.dx + (r * 0.3),
+        center.dy + (r * 0.3),
       );
       final dotPaint = Paint()
         ..color = Colors.white.withValues(alpha: 0.45 * opacity)
