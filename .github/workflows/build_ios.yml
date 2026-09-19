@@ -20,30 +20,26 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: Precache iOS Artifacts
+      - name: Download iOS Engine Artifacts
         run: flutter precache --ios
 
-      - name: Install Dependencies
+      - name: Install Flutter Dependencies
         run: flutter pub get
 
-      - name: Setup & Install CocoaPods
-        run: |
-          cd ios
-          pod install --repo-update
-          cd ..
+      - name: Generate Xcode Config
+        run: flutter build ios --config-only
 
-      - name: Build iOS Application
+      - name: Build iOS Application (Unsigned)
         run: flutter build ios --release --no-codesign
 
       - name: Package IPA for Sideloading
         run: |
-          cd build/ios/iphoneos
           mkdir -p Payload
-          cp -r Runner.app Payload/
+          cp -r build/ios/iphoneos/Runner.app Payload/
           zip -r -y Bubble_by_Athi.ipa Payload
-          mv Bubble_by_Athi.ipa ../../../
+          rm -rf Payload
 
-      - name: Upload IPA Artifact
+      - name: Upload IPA File
         uses: actions/upload-artifact@v4
         with:
           name: Bubble_by_Athi_iOS_IPA
