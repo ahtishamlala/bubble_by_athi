@@ -1,5 +1,5 @@
-name: admob_mediation_app
-description: "AdMob mediation demo app with App Open Ad + Banner Ad, best UI (iOS ready)"
+name: ikram_gaming_hub
+description: "Ikram Gaming Hub - 6-in-1 Arcade Games & Crypto Loyalty Rewards Platform"
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -12,6 +12,10 @@ dependencies:
   google_mobile_ads: ^9.1.0
   cupertino_icons: ^1.0.6
   shared_preferences: ^2.2.3
+  provider: ^6.1.2
+  crypto: ^3.0.3
+  device_info_plus: ^10.1.0
+  share_plus: ^10.0.0
 
 dev_dependencies:
   flutter_test:
@@ -20,5 +24,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  config:
-    enable-swift-package-manager: false
+  assets:
+    - assets/images/
+

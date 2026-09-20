@@ -50,6 +50,16 @@ post_install do |installer|
       config.build_settings['EXPANDED_CODE_SIGN_IDENTITY'] = ""
       config.build_settings['CODE_SIGNING_REQUIRED'] = "NO"
       config.build_settings['CODE_SIGNING_ALLOWED'] = "NO"
+      config.build_settings['GCC_C_LANGUAGE_STANDARD'] = 'gnu11'
+      config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'gnu++17'
+      config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
+
+      # Fix Google Mobile Ads SWIFT_ASYNC header parse errors in Xcode
+      config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)']
+      config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'SWIFT_ASYNC_NAME(x)='
+      config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'SWIFT_ASYNC(x,y)='
+      config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'NS_SWIFT_ASYNC_NAME(x)='
+      config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'NS_SWIFT_ASYNC(x,y)='
     end
   end
 end

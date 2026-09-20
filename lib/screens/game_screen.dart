@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import '../ad_manager.dart';
 import '../banner_ad_widget.dart';
+import '../core/services/arcade_hub_service.dart';
 import '../game/game_controller.dart';
 import '../game/models/bubble_color.dart';
 import '../game/models/level_data.dart';
@@ -60,6 +61,14 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
 
     if (_controller.state == GameState.won) {
       _dialogShown = true;
+      final stars = _controller.calculateStars();
+      // Record progress in ArcadeHubService & award Ikram Gems
+      ArcadeHubService.instance.recordLevelComplete(
+        gameId: 'bubble_shooter',
+        levelNumber: _controller.levelData.levelNumber,
+        score: _controller.score,
+        stars: stars,
+      );
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         showDialog(

@@ -4,14 +4,21 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'ad_manager.dart';
+import 'core/constants/app_constants.dart';
+import 'core/services/arcade_hub_service.dart';
+import 'core/services/auth_service.dart';
+import 'core/services/referral_service.dart';
+import 'core/services/security_service.dart';
+import 'core/services/wallet_service.dart';
+import 'core/theme/app_theme.dart';
 import 'game/models/game_progress.dart';
-import 'screens/main_menu_screen.dart';
+import 'screens/hub_dashboard_screen.dart';
 
-void main() {
+void main() async {
   // 1. Ensure Flutter bindings are ready at root level
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 2. Modern crash-proof error handlers (prevents fatal app termination)
+  // 2. Crash-proof error handlers (prevents fatal app termination)
   FlutterError.onError = (FlutterErrorDetails details) {
     FlutterError.presentError(details);
     debugPrint('Flutter error caught safely: ${details.exceptionAsString()}');
@@ -22,10 +29,17 @@ void main() {
     return true; // Handled, do not crash process
   };
 
-  // 3. Initialize persistent game progress in background/safe mode
-  GameProgress().init().catchError((e) {
-    debugPrint('GameProgress init error caught: $e');
-  });
+  // 3. Initialize Core Platform Services in safe mode
+  try {
+    await SecurityService.instance.init();
+    await AuthService.instance.init();
+    await WalletService.instance.init();
+    await ReferralService.instance.init();
+    await ArcadeHubService.instance.init();
+    await GameProgress().init();
+  } catch (e) {
+    debugPrint('Service initialization error: $e');
+  }
 
   // 4. Initialize AdMob via AdManager safely
   if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
@@ -33,17 +47,18 @@ void main() {
   }
 
   // 5. Mount the app UI immediately
-  runApp(const MyApp());
+  runApp(const IkramGamingHubApp());
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+class IkramGamingHubApp extends StatefulWidget {
+  const IkramGamingHubApp({super.key});
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  State<IkramGamingHubApp> createState() => _IkramGamingHubAppState();
 }
 
-class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+class _IkramGamingHubAppState extends State<IkramGamingHubApp>
+    with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
@@ -67,14 +82,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Bubble by Athi',
+      title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorSchemeSeed: const Color(0xFF6C5CE7),
-        scaffoldBackgroundColor: const Color(0xFF1E272E),
-      ),
-      home: const MainMenuScreen(),
+      theme: AppTheme.darkTheme,
+      home: const HubDashboardScreen(),
     );
   }
 }
