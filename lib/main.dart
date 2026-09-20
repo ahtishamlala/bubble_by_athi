@@ -12,6 +12,7 @@ import 'core/services/security_service.dart';
 import 'core/services/wallet_service.dart';
 import 'core/theme/app_theme.dart';
 import 'game/models/game_progress.dart';
+import 'screens/auth_screen.dart';
 import 'screens/hub_dashboard_screen.dart';
 
 void main() async {
@@ -85,7 +86,16 @@ class _IkramGamingHubAppState extends State<IkramGamingHubApp>
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
-      home: const HubDashboardScreen(),
+      home: ListenableBuilder(
+        listenable: AuthService.instance,
+        builder: (context, _) {
+          if (AuthService.instance.isAuthenticated) {
+            return const HubDashboardScreen();
+          } else {
+            return const AuthScreen();
+          }
+        },
+      ),
     );
   }
 }

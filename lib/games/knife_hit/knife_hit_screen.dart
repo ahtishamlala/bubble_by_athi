@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/services/arcade_hub_service.dart';
+import '../../core/services/audio_service.dart';
 import '../../core/theme/app_theme.dart';
 
 class KnifeHitScreen extends StatefulWidget {
@@ -87,6 +88,7 @@ class _KnifeHitScreenState extends State<KnifeHitScreen>
     if (isKnifeInFlight || isGameOver || hasWon || remainingKnives <= 0) return;
 
     HapticFeedback.lightImpact();
+    AudioService.instance.playShoot();
 
     setState(() {
       isKnifeInFlight = true;
@@ -150,6 +152,7 @@ class _KnifeHitScreenState extends State<KnifeHitScreen>
     } else {
       // Thud! Success hit!
       HapticFeedback.mediumImpact();
+      AudioService.instance.playPop();
       setState(() {
         embeddedKnivesAngles.add(hitAngle);
         isKnifeInFlight = false;
@@ -178,6 +181,7 @@ class _KnifeHitScreenState extends State<KnifeHitScreen>
       score: score,
       stars: stars,
     );
+    AudioService.instance.playVictory();
 
     showDialog(
       context: context,
@@ -253,6 +257,7 @@ class _KnifeHitScreenState extends State<KnifeHitScreen>
   }
 
   void _handleGameOver() {
+    AudioService.instance.playGameOver();
     showDialog(
       context: context,
       barrierDismissible: false,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../core/services/auth_service.dart';
 import '../core/services/security_service.dart';
 import '../core/theme/app_theme.dart';
+import 'login_dialog.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -23,6 +24,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void dispose() {
     _nameController.dispose();
     super.dispose();
+  }
+
+  void _openLoginDialog() {
+    showDialog(
+      context: context,
+      builder: (_) => const LoginDialog(),
+    );
   }
 
   void _editNameDialog() {
@@ -71,6 +79,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         final auth = AuthService.instance;
         final user = auth.currentUser;
         final security = SecurityService.instance;
+        final isAuth = user != null && !user.isGuest;
 
         return Scaffold(
           appBar: AppBar(
@@ -83,13 +92,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 // Profile Avatar & Info Card
                 Container(
                   padding: const EdgeInsets.all(20),
-                  decoration: AppTheme.neonBoxDecoration(borderColor: AppTheme.neonCyan),
+                  decoration: AppTheme.neonBoxDecoration(
+                    borderColor: isAuth ? AppTheme.neonGreen : AppTheme.neonCyan,
+                  ),
                   child: Column(
                     children: [
-                      CircleAvatar(
-                        radius: 42,
-                        backgroundColor: AppTheme.neonCyan.withValues(alpha: 0.2),
-                        child: const Icon(Icons.person_rounded, size: 52, color: AppTheme.neonCyan),
+                      Stack(
+                        alignment: Alignment.bottomRight,
+                        children: [
+                          CircleAvatar(
+                            radius: 42,
+                            backgroundColor: (isAuth ? AppTheme.neonGreen : AppTheme.neonCyan).withValues(alpha: 0.2),
+                            child: Icon(
+                              Icons.person_rounded,
+                              size: 52,
+                              color: isAuth ? AppTheme.neonGreen : AppTheme.neonCyan,
+                            ),
+                          ),
+                          if (isAuth)
+                            Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: const BoxDecoration(
+                                color: AppTheme.neonGreen,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.check, size: 14, color: Colors.black),
+                            ),
+                        ],
                       ),
                       const SizedBox(height: 12),
                       Row(
@@ -110,8 +139,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ],
                       ),
                       Text(
-                        user?.isGuest == true ? 'Visitor / Sandbox Mode' : (user?.email ?? 'Linked Account'),
-                        style: const TextStyle(color: Colors.white54, fontSize: 13),
+                        isAuth ? (user.email.isNotEmpty ? user.email : 'Authenticated Player') : 'Visitor / Sandbox Mode',
+                        style: TextStyle(
+                          color: isAuth ? AppTheme.neonGreen : Colors.white54,
+                          fontSize: 13,
+                          fontWeight: isAuth ? FontWeight.w600 : FontWeight.normal,
+                        ),
                       ),
                       const SizedBox(height: 16),
                       // UID & Referral chips
@@ -152,87 +185,115 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(height: 20),
 
                 // Link / Upgrade Account
-                if (user?.isGuest == true)
+                if (!isAuth)
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: AppTheme.cardDark,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppTheme.neonGold.withValues(alpha: 0.5)),
+                      border: Border.all(color: AppTheme.neonCyan, width: 1.5),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Row(
                           children: [
-                            Icon(Icons.cloud_upload_rounded, color: AppTheme.neonGold, size: 20),
+                            Icon(Icons.security_rounded, color: AppTheme.neonCyan, size: 22),
                             SizedBox(width: 8),
                             Text(
-                              'Link Account to Cloud (+100 Gems)',
+                              'AUTHENTICATE ACCOUNT (+100 Gems)',
                               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
                             ),
                           ],
                         ),
                         const SizedBox(height: 8),
                         const Text(
-                          'Secure your crypto redemptions and sync your progress across devices by linking your Google or Facebook account.',
-                          style: TextStyle(color: Colors.white70, fontSize: 12),
+                          'Secure your high scores, unlock crypto redemptions, and sync your account by logging in with Google or Facebook.',
+                          style: TextStyle(color: Colors.white70, fontSize: 12, height: 1.4),
                         ),
                         const SizedBox(height: 14),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: _openLoginDialog,
+                            icon: const Icon(Icons.login_rounded, size: 18),
+                            label: const Text('LOG IN / AUTHENTICATE NOW'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppTheme.neonCyan,
+                              foregroundColor: Colors.black,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
                         Row(
                           children: [
                             Expanded(
                               child: OutlinedButton.icon(
-                                onPressed: auth.isLoading
-                                    ? null
-                                    : () async {
-                                        final messenger = ScaffoldMessenger.of(context);
-                                        final ok = await auth.signInWithGoogle();
-                                        if (ok && mounted) {
-                                          messenger.showSnackBar(
-                                            const SnackBar(
-                                              content: Text('🎉 Google Account Linked! +100 Bonus Gems awarded!'),
-                                              backgroundColor: AppTheme.neonGreen,
-                                            ),
-                                          );
-                                        }
-                                      },
+                                onPressed: _openLoginDialog,
                                 icon: const Icon(Icons.g_mobiledata_rounded, size: 24, color: Colors.white),
                                 label: const Text('Google'),
                                 style: OutlinedButton.styleFrom(
                                   foregroundColor: Colors.white,
-                                  side: const BorderSide(color: AppTheme.borderGlow),
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  side: const BorderSide(color: Color(0xFFEA4335)),
+                                  padding: const EdgeInsets.symmetric(vertical: 10),
                                 ),
                               ),
                             ),
                             const SizedBox(width: 10),
                             Expanded(
                               child: OutlinedButton.icon(
-                                onPressed: auth.isLoading
-                                    ? null
-                                    : () async {
-                                        final messenger = ScaffoldMessenger.of(context);
-                                        final ok = await auth.signInWithFacebook();
-                                        if (ok && mounted) {
-                                          messenger.showSnackBar(
-                                            const SnackBar(
-                                              content: Text('🎉 Facebook Account Linked! +100 Bonus Gems awarded!'),
-                                              backgroundColor: AppTheme.neonGreen,
-                                            ),
-                                          );
-                                        }
-                                      },
+                                onPressed: _openLoginDialog,
                                 icon: const Icon(Icons.facebook_rounded, size: 20, color: Color(0xFF1877F2)),
                                 label: const Text('Facebook'),
                                 style: OutlinedButton.styleFrom(
                                   foregroundColor: Colors.white,
-                                  side: const BorderSide(color: AppTheme.borderGlow),
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  side: const BorderSide(color: Color(0xFF1877F2)),
+                                  padding: const EdgeInsets.symmetric(vertical: 10),
                                 ),
                               ),
                             ),
                           ],
+                        ),
+                      ],
+                    ),
+                  )
+                else
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppTheme.cardDark,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppTheme.neonGreen, width: 1.5),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Row(
+                          children: [
+                            Icon(Icons.verified_rounded, color: AppTheme.neonGreen, size: 22),
+                            SizedBox(width: 8),
+                            Text(
+                              'VERIFIED & AUTHENTICATED',
+                              style: TextStyle(color: AppTheme.neonGreen, fontWeight: FontWeight.bold, fontSize: 15),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Logged in as ${user.displayName} (${user.email.isNotEmpty ? user.email : user.uid}). Your high scores, arcade progress, and wallet are safely synced to the cloud.',
+                          style: const TextStyle(color: Colors.white70, fontSize: 12, height: 1.4),
+                        ),
+                        const SizedBox(height: 12),
+                        OutlinedButton.icon(
+                          onPressed: _openLoginDialog,
+                          icon: const Icon(Icons.switch_account_rounded, size: 18, color: AppTheme.neonCyan),
+                          label: const Text('Switch / Update Account', style: TextStyle(color: AppTheme.neonCyan)),
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: AppTheme.neonCyan),
+                            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                          ),
                         ),
                       ],
                     ),

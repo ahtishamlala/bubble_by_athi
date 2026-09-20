@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/services/arcade_hub_service.dart';
+import '../../core/services/audio_service.dart';
 import '../../core/theme/app_theme.dart';
 
 class Match3Screen extends StatefulWidget {
@@ -49,19 +50,26 @@ class _Match3ScreenState extends State<Match3Screen> {
     selectedC = null;
     isProcessing = false;
 
-    // Generate initial board with no instant matches
-    board = List.generate(
-      gridSize,
-      (r) => List.generate(gridSize, (c) => _getRandomSafeCandy(r, c)),
-    );
+    // Pre-allocate empty board first to avoid LateInitializationError
+    board = List.generate(gridSize, (_) => List.filled(gridSize, -1));
+
+    // Populate safely with no initial matches
+    for (int r = 0; r < gridSize; r++) {
+      for (int c = 0; c < gridSize; c++) {
+        board[r][c] = _getRandomSafeCandy(r, c);
+      }
+    }
   }
 
   int _getRandomSafeCandy(int r, int c) {
     int val;
+    int attempts = 0;
     do {
       val = _rand.nextInt(candyIcons.length);
-    } while ((c >= 2 && board[r][c - 1] == val && board[r][c - 2] == val) ||
-        (r >= 2 && board[r - 1][c] == val && board[r - 2][c] == val));
+      attempts++;
+    } while (attempts < 20 &&
+        ((c >= 2 && board[r][c - 1] == val && board[r][c - 2] == val) ||
+            (r >= 2 && board[r - 1][c] == val && board[r - 2][c] == val)));
     return val;
   }
 
@@ -156,6 +164,7 @@ class _Match3ScreenState extends State<Match3Screen> {
 
   Future<void> _processMatches(Set<Point<int>> matches) async {
     score += matches.length * 30;
+    AudioService.instance.playMatch();
 
     // Clear matched
     for (final p in matches) {
@@ -217,6 +226,7 @@ class _Match3ScreenState extends State<Match3Screen> {
       score: score,
       stars: stars,
     );
+    AudioService.instance.playVictory();
 
     showDialog(
       context: context,
@@ -289,6 +299,7 @@ class _Match3ScreenState extends State<Match3Screen> {
   }
 
   void _handleGameOver() {
+    AudioService.instance.playGameOver();
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -372,11 +383,13 @@ class _Match3ScreenState extends State<Match3Screen> {
             // 8x8 Grid
             Expanded(
               child: Center(
-                child: AspectRatio(
-                  aspectRatio: 1.0,
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Container(
+                child: FittedBox(
+                  fit: BoxFit.contain,
+                  child: AspectRatio(
+                    aspectRatio: 1.0,
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
                         color: const Color(0xFF131B2A),
@@ -439,6 +452,7 @@ class _Match3ScreenState extends State<Match3Screen> {
                   ),
                 ),
               ),
+            ),
             ),
             const SizedBox(height: 16),
           ],

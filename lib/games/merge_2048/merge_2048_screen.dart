@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/services/arcade_hub_service.dart';
+import '../../core/services/audio_service.dart';
 import '../../core/theme/app_theme.dart';
 
 class Merge2048Screen extends StatefulWidget {
@@ -114,6 +115,11 @@ class _Merge2048ScreenState extends State<Merge2048Screen> {
 
     if (moved) {
       HapticFeedback.lightImpact();
+      if (pointsEarned > 0) {
+        AudioService.instance.playPop(combo: 2);
+      } else {
+        AudioService.instance.playShoot();
+      }
       setState(() {
         score += pointsEarned;
         remainingSteps--;
@@ -155,6 +161,7 @@ class _Merge2048ScreenState extends State<Merge2048Screen> {
       score: score,
       stars: stars,
     );
+    AudioService.instance.playVictory();
 
     showDialog(
       context: context,
@@ -227,6 +234,7 @@ class _Merge2048ScreenState extends State<Merge2048Screen> {
   }
 
   void _handleGameOver() {
+    AudioService.instance.playGameOver();
     showDialog(
       context: context,
       barrierDismissible: false,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/services/arcade_hub_service.dart';
+import '../../core/services/audio_service.dart';
 import '../../core/theme/app_theme.dart';
 import 'block_shapes.dart';
 
@@ -149,6 +150,7 @@ class _BlockPuzzleScreenState extends State<BlockPuzzleScreen> {
       final bonus = totalLines * 100 * streakCombo;
       score += bonus;
       HapticFeedback.mediumImpact();
+      AudioService.instance.playPop(combo: streakCombo);
 
       // Clear rows
       for (final r in fullRows) {
@@ -182,6 +184,7 @@ class _BlockPuzzleScreenState extends State<BlockPuzzleScreen> {
       score: score,
       stars: stars,
     );
+    AudioService.instance.playVictory();
 
     showDialog(
       context: context,
@@ -254,6 +257,7 @@ class _BlockPuzzleScreenState extends State<BlockPuzzleScreen> {
   }
 
   void _showGameOverDialog() {
+    AudioService.instance.playGameOver();
     showDialog(
       context: context,
       barrierDismissible: false,

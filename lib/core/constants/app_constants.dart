@@ -1,21 +1,23 @@
 class AppConstants {
   // App Info
-  static const String appName = 'Ikram Arcade Hub';
+  static const String appName = '6 in 1 Games';
   static const String appTagline = '6-in-1 Cyber Arcade & Crypto Rewards';
   static const String packageName = 'com.ikram.bubble_by_ikram';
   static const String appVersion = '1.0.0';
 
   // Currency & Economy (Zero fiat mentions)
-  static const String currencyName = 'Ikram Gems';
+  static const String currencyName = 'Coins';
   static const String currencySymbol = '💎';
   static const String cryptoUnit = 'USDT';
-  static const int gemsPerUsdt = 1000; // 1,000 Gems = $1.00 USDT
+  static const int gemsPerUsdt = 100000; // 100,000 Coins / Gems = $1.00 USDT
 
   // Redemption Thresholds & Quick Chips
-  static const int minWithdrawalGems = 5000; // $5.00 USDT
-  static const double minWithdrawalUsdt = 5.0;
+  static const int minWithdrawalGems = 1000000; // $10.00 USDT = 1,000,000 Coins
+  static const double minWithdrawalUsdt = 10.0;
 
-  static const List<double> withdrawalTiersUsdt = [5.0, 10.0, 25.0, 50.0];
+  static const List<double> withdrawalTiersUsdt = [10.0, 20.0, 50.0, 100.0];
+  static const String adminEmail = 'wwewrestling2k20@gmial.com';
+  static const String withdrawalTimeline = '48 to 68 Hours';
 
   // Referral System
   static const int inviteeBonusGems = 100;

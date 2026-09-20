@@ -62,17 +62,18 @@ class WalletService extends ChangeNotifier {
     required double amountUsdt,
     required String network,
     required String destinationAddress,
+    String accountName = '',
   }) async {
     final requiredGems = (amountUsdt * AppConstants.gemsPerUsdt).round();
 
     // 1. Balance validation
     if (gemsBalance < requiredGems) {
-      throw Exception('Insufficient Gems! You need $requiredGems Gems for \$${amountUsdt.toStringAsFixed(2)} USDT.');
+      throw Exception('Insufficient Coins! You need $requiredGems Coins for \$${amountUsdt.toStringAsFixed(2)} USDT.');
     }
 
-    // 2. Minimum payout threshold check
+    // 2. Minimum payout threshold check ($10.00)
     if (amountUsdt < AppConstants.minWithdrawalUsdt) {
-      throw Exception('Minimum redemption threshold is \$${AppConstants.minWithdrawalUsdt.toStringAsFixed(2)} USDT (${AppConstants.minWithdrawalGems} Gems).');
+      throw Exception('Minimum redemption threshold is \$${AppConstants.minWithdrawalUsdt.toStringAsFixed(2)} USDT (${AppConstants.minWithdrawalGems} Coins).');
     }
 
     // 3. Client-side Regex Validation
@@ -91,18 +92,23 @@ class WalletService extends ChangeNotifier {
       }
     }
 
-    // 4. Deduct gems
+    final user = AuthService.instance.currentUser;
+
+    // 4. Deduct coins
     await AuthService.instance.updateGems(gemsBalance - requiredGems);
 
     // 5. Create request
     final newReq = WithdrawalRequest(
       id: 'REQ-${DateTime.now().millisecondsSinceEpoch.toString().substring(5)}',
-      userId: AuthService.instance.currentUser?.uid ?? 'unknown',
+      userId: user?.uid ?? 'unknown',
+      userEmail: user?.email ?? '',
+      userPhone: user?.phone ?? '',
       date: DateTime.now(),
       amountUsdt: amountUsdt,
       gemsSpent: requiredGems,
       network: network,
       destinationAddress: cleanDest,
+      accountName: accountName.trim(),
       status: 'Processing',
     );
 

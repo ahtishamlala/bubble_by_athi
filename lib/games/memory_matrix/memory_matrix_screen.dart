@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/services/arcade_hub_service.dart';
+import '../../core/services/audio_service.dart';
 import '../../core/theme/app_theme.dart';
 
 class MemoryCard {
@@ -123,6 +124,7 @@ class _MemoryMatrixScreenState extends State<MemoryMatrixScreen> {
     if (cards[index].isFlipped || cards[index].isMatched) return;
 
     HapticFeedback.selectionClick();
+    AudioService.instance.playClick();
 
     setState(() {
       cards[index].isFlipped = true;
@@ -141,6 +143,7 @@ class _MemoryMatrixScreenState extends State<MemoryMatrixScreen> {
       if (card1.symbol == card2.symbol) {
         // Matched!
         HapticFeedback.mediumImpact();
+        AudioService.instance.playMatch();
         Future.delayed(const Duration(milliseconds: 300), () {
           if (!mounted) return;
           setState(() {
@@ -187,6 +190,7 @@ class _MemoryMatrixScreenState extends State<MemoryMatrixScreen> {
       score: score,
       stars: stars,
     );
+    AudioService.instance.playVictory();
 
     showDialog(
       context: context,
@@ -259,6 +263,7 @@ class _MemoryMatrixScreenState extends State<MemoryMatrixScreen> {
   }
 
   void _handleGameOver() {
+    AudioService.instance.playGameOver();
     showDialog(
       context: context,
       barrierDismissible: false,

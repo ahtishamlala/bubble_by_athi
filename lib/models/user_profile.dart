@@ -2,6 +2,7 @@ class UserProfile {
   final String uid;
   final String displayName;
   final String email;
+  final String phone;
   final String avatarUrl;
   final int gemsBalance;
   final String referralCode;
@@ -14,6 +15,7 @@ class UserProfile {
     required this.uid,
     required this.displayName,
     required this.email,
+    this.phone = '',
     required this.avatarUrl,
     required this.gemsBalance,
     required this.referralCode,
@@ -27,6 +29,7 @@ class UserProfile {
     String? uid,
     String? displayName,
     String? email,
+    String? phone,
     String? avatarUrl,
     int? gemsBalance,
     String? referralCode,
@@ -39,6 +42,7 @@ class UserProfile {
       uid: uid ?? this.uid,
       displayName: displayName ?? this.displayName,
       email: email ?? this.email,
+      phone: phone ?? this.phone,
       avatarUrl: avatarUrl ?? this.avatarUrl,
       gemsBalance: gemsBalance ?? this.gemsBalance,
       referralCode: referralCode ?? this.referralCode,
@@ -54,6 +58,7 @@ class UserProfile {
       'uid': uid,
       'displayName': displayName,
       'email': email,
+      'phone': phone,
       'avatarUrl': avatarUrl,
       'gemsBalance': gemsBalance,
       'referralCode': referralCode,
@@ -69,9 +74,10 @@ class UserProfile {
       uid: json['uid'] as String? ?? 'guest_001',
       displayName: json['displayName'] as String? ?? 'Cyber Gamer',
       email: json['email'] as String? ?? '',
+      phone: json['phone'] as String? ?? '',
       avatarUrl: json['avatarUrl'] as String? ?? '',
       gemsBalance: (json['gemsBalance'] as num?)?.toInt() ?? 100,
-      referralCode: json['referralCode'] as String? ?? 'IKRAM-7X9Y',
+      referralCode: json['referralCode'] as String? ?? 'PLAYER-7X9Y',
       referredBy: json['referredBy'] as String?,
       isGuest: json['isGuest'] as bool? ?? true,
       joinedAt: json['joinedAt'] != null

@@ -13,6 +13,7 @@ import '../games/merge_2048/merge_2048_screen.dart';
 import '../models/game_stat.dart';
 import 'compliance_screen.dart';
 import 'game_screen.dart';
+import 'login_dialog.dart';
 import 'profile_screen.dart';
 import 'referral_screen.dart';
 import 'wallet_screen.dart';
@@ -239,16 +240,16 @@ class _HubDashboardScreenState extends State<HubDashboardScreen>
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'IKRAM',
+                                    '6 IN 1',
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w900,
-                                      fontSize: 15,
+                                      fontSize: 16,
                                       letterSpacing: 1.5,
                                     ),
                                   ),
                                   Text(
-                                    'ARCADE HUB',
+                                    'ARCADE GAMES',
                                     style: TextStyle(
                                       color: AppTheme.neonCyan,
                                       fontWeight: FontWeight.bold,
@@ -263,6 +264,77 @@ class _HubDashboardScreenState extends State<HubDashboardScreen>
                         ),
 
                         const Spacer(),
+
+                        // Login Button or Verified User Chip
+                        if (AuthService.instance.isGuest)
+                          GestureDetector(
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (_) => const LoginDialog(),
+                              );
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              margin: const EdgeInsets.only(right: 8),
+                              decoration: BoxDecoration(
+                                color: AppTheme.neonCyan.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: AppTheme.neonCyan, width: 1.2),
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.login_rounded, color: AppTheme.neonCyan, size: 14),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    'LOG IN',
+                                    style: TextStyle(
+                                      color: AppTheme.neonCyan,
+                                      fontWeight: FontWeight.w900,
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        else
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(builder: (_) => const ProfileScreen()),
+                              );
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              margin: const EdgeInsets.only(right: 8),
+                              decoration: BoxDecoration(
+                                color: AppTheme.neonGreen.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: AppTheme.neonGreen, width: 1.2),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.verified_rounded, color: AppTheme.neonGreen, size: 14),
+                                  const SizedBox(width: 4),
+                                  ConstrainedBox(
+                                    constraints: const BoxConstraints(maxWidth: 60),
+                                    child: Text(
+                                      AuthService.instance.currentUser?.displayName.split(' ').first ?? 'Player',
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        color: AppTheme.neonGreen,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 11,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
 
                         // Gems & USDT Pill (Tapping opens Wallet)
                         GestureDetector(
@@ -409,6 +481,74 @@ class _HubDashboardScreenState extends State<HubDashboardScreen>
                   ),
 
                   const SizedBox(height: 8),
+
+                  // Guest Login Prompt Banner
+                  if (AuthService.instance.isGuest)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      child: InkWell(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (_) => const LoginDialog(),
+                          );
+                        },
+                        borderRadius: BorderRadius.circular(14),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                AppTheme.neonCyan.withValues(alpha: 0.2),
+                                const Color(0xFF6C5CE7).withValues(alpha: 0.2),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: AppTheme.neonCyan, width: 1.2),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.security_rounded, color: AppTheme.neonCyan, size: 24),
+                              const SizedBox(width: 10),
+                              const Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Log In / Authenticate Account',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Save high scores & get +100 Welcome Gems!',
+                                      style: TextStyle(color: Colors.white70, fontSize: 11),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.neonCyan,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: const Text(
+                                  'SIGN IN',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
 
                   // Header Section Title
                   Padding(

@@ -359,12 +359,6 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
             const Color(0xFF2C3E50),
           ),
           _buildBoosterItem(
-            BubbleType.rainbow,
-            'Rainbow',
-            Icons.star_rounded,
-            const Color(0xFF6C5CE7),
-          ),
-          _buildBoosterItem(
             BubbleType.fireball,
             'Fireball',
             Icons.whatshot_rounded,
@@ -375,11 +369,83 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     );
   }
 
+  int _getBoosterCount(BubbleType type) {
+    if (type == BubbleType.bomb) return _controller.bombCount;
+    if (type == BubbleType.fireball) return _controller.fireballCount;
+    return 0;
+  }
+
   Widget _buildBoosterItem(BubbleType type, String label, IconData icon, Color color) {
     final isSelected = _controller.activeBooster == type;
+    final count = _getBoosterCount(type);
 
     return GestureDetector(
-      onTap: () => _controller.activateBooster(type),
+      onTap: () {
+        if (count > 0) {
+          final success = _controller.activateBooster(type);
+          if (success) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('$label Booster Armed! Aim & shoot! (Remaining: ${_getBoosterCount(type)})'),
+                duration: const Duration(seconds: 1),
+                backgroundColor: color,
+              ),
+            );
+          }
+        } else {
+          // Out of boosters -> Offer Rewarded Ad!
+          showDialog(
+            context: context,
+            builder: (_) => AlertDialog(
+              backgroundColor: const Color(0xFF1E272E),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+                side: BorderSide(color: color, width: 1.5),
+              ),
+              title: Row(
+                children: [
+                  Icon(icon, color: color),
+                  const SizedBox(width: 8),
+                  Text('Get +1 Free $label', style: const TextStyle(color: Colors.white, fontSize: 16)),
+                ],
+              ),
+              content: Text(
+                'You are out of $label boosters! Watch a quick video ad to get +1 Free $label instantly.',
+                style: const TextStyle(color: Colors.white70, fontSize: 13),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+                ),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    AdManager.instance.showRewardedAd(
+                      context: context,
+                      onUserEarnedReward: (_) {
+                        _controller.addBooster(type, 1);
+                        _controller.activateBooster(type);
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('🎉 +1 $label Booster Added and Armed!'),
+                              backgroundColor: const Color(0xFF1DD1A1),
+                            ),
+                          );
+                        }
+                      },
+                    );
+                  },
+                  icon: const Icon(Icons.video_library_rounded, color: Color(0xFFFECA57), size: 18),
+                  label: const Text('Watch Video 🎬'),
+                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF5F27CD)),
+                ),
+              ],
+            ),
+          );
+        }
+      },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
@@ -392,11 +458,27 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         ),
         child: Row(
           children: [
-            Icon(icon, size: 16, color: Colors.white),
+            Icon(icon, size: 16, color: count > 0 ? Colors.white : Colors.white38),
             const SizedBox(width: 4),
             Text(
               label,
-              style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                color: count > 0 ? Colors.white : Colors.white38,
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+              decoration: BoxDecoration(
+                color: count > 0 ? color : Colors.white24,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                'x$count',
+                style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+              ),
             ),
           ],
         ),

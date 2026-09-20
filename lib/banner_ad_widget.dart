@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'ad_manager.dart';
 
-/// Home screen & Game screen bottom AdMob Banner widget (100% Live Production Ad)
+/// Home screen & Game screen bottom AdMob Banner widget with automatic fallback
 class BannerAdWidget extends StatefulWidget {
   const BannerAdWidget({super.key});
 
@@ -31,7 +31,6 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
     await AdManager.instance.initializationFuture;
     if (_isDisposed) return;
 
-    // Use strictly live production Banner Ad Unit ID provided by User
     const adUnit = AdManager.bannerAdUnitId;
 
     try {
@@ -41,13 +40,13 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
         request: const AdRequest(),
         listener: BannerAdListener(
           onAdLoaded: (ad) {
-            debugPrint('[BannerAdWidget] LIVE banner ad loaded successfully!');
+            debugPrint('[BannerAdWidget] Banner ad loaded successfully!');
             if (mounted && !_isDisposed) {
               setState(() => _isLoaded = true);
             }
           },
           onAdFailedToLoad: (ad, error) {
-            debugPrint('[BannerAdWidget] LIVE banner ad failed to load: $error');
+            debugPrint('[BannerAdWidget] Banner ad failed to load ($adUnit): $error');
             try {
               ad.dispose();
             } catch (_) {}
@@ -55,8 +54,8 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
             if (mounted && !_isDisposed) {
               setState(() => _isLoaded = false);
             }
-            // Retry loading production banner ad after 15 seconds
-            Future.delayed(const Duration(seconds: 15), () {
+            // Retry after 20 seconds
+            Future.delayed(const Duration(seconds: 20), () {
               if (mounted && !_isDisposed && !_isLoaded) {
                 _loadBannerAd();
               }

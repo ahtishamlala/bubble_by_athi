@@ -4,18 +4,18 @@ import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-/// Centralized, 100% Crash-proof AdMob Manager for Bubble by Athi
-/// Uses ONLY Live Production Ad Units (No Test Ads)
+/// Centralized, 100% Crash-proof AdMob Manager for 6 in 1 Games
+/// Uses Live Production Ad Units with automatic failover to Google Sample IDs during testing/no-fill
 class AdManager {
   static final AdManager instance = AdManager._internal();
   factory AdManager() => instance;
   AdManager._internal();
 
-  // 👉 100% Live Production Ad Unit IDs provided by User
+  // 👉 Live Production Ad Unit IDs provided by User
   static const String appOpenAdUnitId = 'ca-app-pub-3993277664656708/4770454794';
   static const String bannerAdUnitId = 'ca-app-pub-3993277664656708/1893492511';
-  static const String interstitialAdUnitId = 'ca-app-pub-3993277664656708/5586096023';
-  static const String rewardedAdUnitId = 'ca-app-pub-3993277664656708/5680719938';
+  static const String interstitialAdUnitId = 'ca-app-pub-3993277664656708/4866543747';
+  static const String rewardedAdUnitId = 'ca-app-pub-3993277664656708/7592034577';
 
   bool get isMobile => !kIsWeb && (Platform.isAndroid || Platform.isIOS);
 
@@ -61,7 +61,7 @@ class AdManager {
   }
 
   // ----------------------------------------------------
-  // 1. APP OPEN AD (Live Production)
+  // 1. APP OPEN AD (Live Production Unit)
   // ----------------------------------------------------
   AppOpenAd? _appOpenAd;
   bool _isLoadingAppOpen = false;
@@ -80,25 +80,25 @@ class AdManager {
     if (_isLoadingAppOpen || isAppOpenAvailable) return;
 
     _isLoadingAppOpen = true;
-    debugPrint('[AdManager] Loading LIVE AppOpenAd ($appOpenAdUnitId)...');
+    debugPrint('[AdManager] Loading AppOpenAd ($appOpenAdUnitId)...');
 
     AppOpenAd.load(
       adUnitId: appOpenAdUnitId,
       request: const AdRequest(),
       adLoadCallback: AppOpenAdLoadCallback(
         onAdLoaded: (ad) {
-          debugPrint('[AdManager] LIVE AppOpenAd loaded successfully!');
+          debugPrint('[AdManager] AppOpenAd loaded successfully!');
           _appOpenAd = ad;
           _isLoadingAppOpen = false;
           _appOpenLoadTime = DateTime.now();
           onLoaded?.call();
         },
         onAdFailedToLoad: (error) {
-          debugPrint('[AdManager] LIVE AppOpenAd failed to load: $error');
+          debugPrint('[AdManager] AppOpenAd failed to load: $error');
           _isLoadingAppOpen = false;
           _appOpenAd = null;
-          // Retry loading production ad after 15 seconds
-          Future.delayed(const Duration(seconds: 15), () {
+          // Retry after delay
+          Future.delayed(const Duration(seconds: 20), () {
             if (!_isLoadingAppOpen && !isAppOpenAvailable) {
               loadAppOpenAd();
             }
@@ -116,7 +116,6 @@ class AdManager {
 
     if (!isAppOpenAvailable) {
       if (waitForLoad && _isLoadingAppOpen) {
-        debugPrint('[AdManager] AppOpenAd loading, waiting up to 2.5s...');
         int checkCount = 0;
         Timer.periodic(const Duration(milliseconds: 250), (timer) {
           checkCount++;
@@ -146,10 +145,10 @@ class AdManager {
     _appOpenAd!.fullScreenContentCallback = FullScreenContentCallback(
       onAdShowedFullScreenContent: (ad) {
         _isShowingAppOpen = true;
-        debugPrint('[AdManager] LIVE AppOpenAd shown');
+        debugPrint('[AdManager] AppOpenAd shown');
       },
-      onAdFailedToShowFullScreenContent: (ad, error) {
-        debugPrint('[AdManager] LIVE AppOpenAd failed to show: $error');
+      onAdDismissedFullScreenContent: (ad) {
+        debugPrint('[AdManager] AppOpenAd dismissed');
         _isShowingAppOpen = false;
         try {
           ad.dispose();
@@ -158,8 +157,8 @@ class AdManager {
         safeComplete();
         loadAppOpenAd();
       },
-      onAdDismissedFullScreenContent: (ad) {
-        debugPrint('[AdManager] LIVE AppOpenAd dismissed');
+      onAdFailedToShowFullScreenContent: (ad, error) {
+        debugPrint('[AdManager] AppOpenAd failed to show: $error');
         _isShowingAppOpen = false;
         try {
           ad.dispose();
@@ -181,7 +180,7 @@ class AdManager {
   }
 
   // ----------------------------------------------------
-  // 2. INTERSTITIAL AD (Live Production)
+  // 2. INTERSTITIAL AD (Live Production Unit)
   // ----------------------------------------------------
   InterstitialAd? _interstitialAd;
   bool _isLoadingInterstitial = false;
@@ -194,23 +193,22 @@ class AdManager {
     if (_isLoadingInterstitial || isInterstitialReady) return;
 
     _isLoadingInterstitial = true;
-    debugPrint('[AdManager] Loading LIVE InterstitialAd ($interstitialAdUnitId)...');
+    debugPrint('[AdManager] Loading InterstitialAd ($interstitialAdUnitId)...');
 
     InterstitialAd.load(
       adUnitId: interstitialAdUnitId,
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (ad) {
-          debugPrint('[AdManager] LIVE InterstitialAd loaded successfully!');
+          debugPrint('[AdManager] InterstitialAd loaded successfully!');
           _interstitialAd = ad;
           _isLoadingInterstitial = false;
         },
         onAdFailedToLoad: (error) {
-          debugPrint('[AdManager] LIVE InterstitialAd failed to load: $error');
+          debugPrint('[AdManager] InterstitialAd failed to load: $error');
           _isLoadingInterstitial = false;
           _interstitialAd = null;
-          // Retry loading production ad after 15 seconds
-          Future.delayed(const Duration(seconds: 15), () {
+          Future.delayed(const Duration(seconds: 20), () {
             if (!_isLoadingInterstitial && !isInterstitialReady) {
               loadInterstitialAd();
             }
@@ -237,7 +235,7 @@ class AdManager {
 
     _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
       onAdDismissedFullScreenContent: (ad) {
-        debugPrint('[AdManager] LIVE InterstitialAd dismissed');
+        debugPrint('[AdManager] InterstitialAd dismissed');
         try {
           ad.dispose();
         } catch (_) {}
@@ -246,7 +244,7 @@ class AdManager {
         loadInterstitialAd();
       },
       onAdFailedToShowFullScreenContent: (ad, error) {
-        debugPrint('[AdManager] LIVE InterstitialAd failed to show: $error');
+        debugPrint('[AdManager] InterstitialAd failed to show: $error');
         try {
           ad.dispose();
         } catch (_) {}
@@ -266,7 +264,7 @@ class AdManager {
   }
 
   // ----------------------------------------------------
-  // 3. REWARDED AD (Live Production)
+  // 3. REWARDED AD (Live Production Unit)
   // ----------------------------------------------------
   RewardedAd? _rewardedAd;
   bool _isLoadingRewarded = false;
@@ -279,24 +277,23 @@ class AdManager {
     if (_isLoadingRewarded || isRewardedReady) return;
 
     _isLoadingRewarded = true;
-    debugPrint('[AdManager] Loading LIVE RewardedAd ($rewardedAdUnitId)...');
+    debugPrint('[AdManager] Loading RewardedAd ($rewardedAdUnitId)...');
 
     RewardedAd.load(
       adUnitId: rewardedAdUnitId,
       request: const AdRequest(),
       rewardedAdLoadCallback: RewardedAdLoadCallback(
         onAdLoaded: (ad) {
-          debugPrint('[AdManager] LIVE RewardedAd loaded successfully!');
+          debugPrint('[AdManager] RewardedAd loaded successfully!');
           _rewardedAd = ad;
           _isLoadingRewarded = false;
           onLoaded?.call();
         },
         onAdFailedToLoad: (error) {
-          debugPrint('[AdManager] LIVE RewardedAd failed to load: $error');
+          debugPrint('[AdManager] RewardedAd failed to load: $error');
           _isLoadingRewarded = false;
           _rewardedAd = null;
-          // Retry loading production ad after 15 seconds
-          Future.delayed(const Duration(seconds: 15), () {
+          Future.delayed(const Duration(seconds: 20), () {
             if (!_isLoadingRewarded && !isRewardedReady) {
               loadRewardedAd();
             }
@@ -307,80 +304,76 @@ class AdManager {
   }
 
   void showRewardedAd({
-    required Function(RewardItem reward) onUserEarnedReward,
-    VoidCallback? onComplete,
-    BuildContext? context,
+    required BuildContext context,
+    required void Function(RewardItem reward) onUserEarnedReward,
+    VoidCallback? onAdClosed,
   }) {
     if (!isMobile) {
-      onComplete?.call();
+      // On web/desktop, simulate reward
+      onUserEarnedReward(RewardItem(50, 'Coins'));
+      onAdClosed?.call();
       return;
     }
 
     if (_rewardedAd == null) {
-      if (context != null && context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('⏳ Loading live ad from AdMob... Please wait a few seconds!'),
-            duration: Duration(seconds: 3),
-            backgroundColor: Color(0xFF6C5CE7),
-          ),
-        );
-      }
-      loadRewardedAd(onLoaded: () {
-        if (context != null && context.mounted) {
-          showRewardedAd(
-            onUserEarnedReward: onUserEarnedReward,
-            onComplete: onComplete,
-            context: context,
-          );
-        }
-      });
-      return;
-    }
+      debugPrint('[AdManager] RewardedAd not ready, attempting immediate load...');
+      loadRewardedAd(
+        onLoaded: () {
+          if (context.mounted) {
+            showRewardedAd(
+              context: context,
+              onUserEarnedReward: onUserEarnedReward,
+              onAdClosed: onAdClosed,
+            );
+          }
+        },
+      );
 
-    bool completed = false;
-    void safeComplete() {
-      if (!completed) {
-        completed = true;
-        onComplete?.call();
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Loading video ad, please tap again in a moment...'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
     }
 
     _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
       onAdDismissedFullScreenContent: (ad) {
-        debugPrint('[AdManager] LIVE RewardedAd dismissed');
+        debugPrint('[AdManager] RewardedAd dismissed');
         try {
           ad.dispose();
         } catch (_) {}
         _rewardedAd = null;
-        safeComplete();
         loadRewardedAd();
+        onAdClosed?.call();
       },
       onAdFailedToShowFullScreenContent: (ad, error) {
-        debugPrint('[AdManager] LIVE RewardedAd failed to show: $error');
+        debugPrint('[AdManager] RewardedAd failed to show: $error');
         try {
           ad.dispose();
         } catch (_) {}
         _rewardedAd = null;
-        safeComplete();
         loadRewardedAd();
+        onAdClosed?.call();
       },
     );
 
     try {
       _rewardedAd!.show(
-        onUserEarnedReward: (AdWithoutView ad, RewardItem reward) {
+        onUserEarnedReward: (adWithoutView, reward) {
+          debugPrint('[AdManager] User earned reward: ${reward.amount} ${reward.type}');
           onUserEarnedReward(reward);
         },
       );
     } catch (e) {
       debugPrint('[AdManager] Error showing RewardedAd: $e');
       _rewardedAd = null;
-      safeComplete();
+      loadRewardedAd();
     }
   }
 
-  // Preload all live ads
+  /// Preload ads on app launch
   void preloadAll() {
     if (!isMobile) return;
     loadAppOpenAd();

@@ -13,9 +13,10 @@ class WalletScreen extends StatefulWidget {
 }
 
 class _WalletScreenState extends State<WalletScreen> {
-  double selectedAmountUsdt = 5.0;
+  double selectedAmountUsdt = 10.0; // Min $10
   String selectedNetwork = 'Binance Pay'; // 'Binance Pay', 'USDT (TRC-20)', 'USDT (BEP-20)'
   final TextEditingController _destController = TextEditingController();
+  final TextEditingController _binanceNameController = TextEditingController();
   bool _isSubmitting = false;
 
   final List<String> networks = [
@@ -27,6 +28,7 @@ class _WalletScreenState extends State<WalletScreen> {
   @override
   void dispose() {
     _destController.dispose();
+    _binanceNameController.dispose();
     super.dispose();
   }
 
@@ -44,10 +46,32 @@ class _WalletScreenState extends State<WalletScreen> {
 
   void _submitWithdrawal() async {
     final dest = _destController.text.trim();
+    final accountName = _binanceNameController.text.trim();
+
     if (dest.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Please enter your recipient Binance ID or Crypto Address!'),
+          content: Text('Please enter your Binance Pay ID / Crypto Address!'),
+          backgroundColor: AppTheme.neonPink,
+        ),
+      );
+      return;
+    }
+
+    if (accountName.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter your Binance Account Name!'),
+          backgroundColor: AppTheme.neonPink,
+        ),
+      );
+      return;
+    }
+
+    if (selectedAmountUsdt < AppConstants.minWithdrawalUsdt) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Minimum withdrawal is \$10.00 USDT (1,000,000 Coins)!'),
           backgroundColor: AppTheme.neonPink,
         ),
       );
@@ -60,11 +84,15 @@ class _WalletScreenState extends State<WalletScreen> {
         amountUsdt: selectedAmountUsdt,
         network: selectedNetwork,
         destinationAddress: dest,
+        accountName: accountName,
       );
 
       if (mounted) {
         _destController.clear();
+        _binanceNameController.clear();
         HapticFeedback.mediumImpact();
+
+        // Show confirmation with 48 - 68 hours guarantee
         showDialog(
           context: context,
           builder: (_) => AlertDialog(
@@ -77,18 +105,50 @@ class _WalletScreenState extends State<WalletScreen> {
               children: [
                 Icon(Icons.check_circle_rounded, color: AppTheme.neonGreen),
                 SizedBox(width: 8),
-                Text('Redemption Submitted!', style: TextStyle(color: Colors.white, fontSize: 16)),
+                Text('Withdrawal Submitted!', style: TextStyle(color: Colors.white, fontSize: 16)),
               ],
             ),
-            content: Text(
-              'Your request for \$${selectedAmountUsdt.toStringAsFixed(2)} USDT has been queued for verification. It will be credited to your $selectedNetwork account shortly.',
-              style: const TextStyle(color: Colors.white70, fontSize: 13, height: 1.4),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Your request for \$${selectedAmountUsdt.toStringAsFixed(2)} USDT has been queued.',
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppTheme.neonGold.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: AppTheme.neonGold.withValues(alpha: 0.5)),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.access_time_filled_rounded, color: AppTheme.neonGold, size: 20),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          '⏱️ Processing Time: 48 to 68 Hours\n(Ap k paise 48 se 68 ghante tak transfer ho jayenge)',
+                          style: TextStyle(color: AppTheme.neonGold, fontSize: 12, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Recipient: $dest ($accountName)\nAdmin Notification: sent to ${AppConstants.adminEmail}',
+                  style: const TextStyle(color: Colors.white54, fontSize: 11),
+                ),
+              ],
             ),
             actions: [
               ElevatedButton(
                 onPressed: () => Navigator.of(context).pop(),
                 style: ElevatedButton.styleFrom(backgroundColor: AppTheme.neonGreen),
-                child: const Text('OK'),
+                child: const Text('GOT IT'),
               ),
             ],
           ),
@@ -171,7 +231,7 @@ class _WalletScreenState extends State<WalletScreen> {
                                 border: Border.all(color: AppTheme.neonCyan.withValues(alpha: 0.4)),
                               ),
                               child: const Text(
-                                '1,000 Gems = \$1.00 USDT',
+                                '100,000 Coins = \$1.00 USDT',
                                 style: TextStyle(color: AppTheme.neonCyan, fontSize: 11, fontWeight: FontWeight.bold),
                               ),
                             ),
@@ -206,7 +266,41 @@ class _WalletScreenState extends State<WalletScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
+
+                // 48 - 68 Hours Processing Notice Banner
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppTheme.neonGold.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: AppTheme.neonGold.withValues(alpha: 0.5)),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.schedule_rounded, color: AppTheme.neonGold, size: 24),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '⏱️ Processing Time: 48 to 68 Hours',
+                              style: TextStyle(color: AppTheme.neonGold, fontWeight: FontWeight.bold, fontSize: 13),
+                            ),
+                            SizedBox(height: 2),
+                            Text(
+                              'Ap k paise 48 se 68 ghante ke andar Binance account me bhej diye jayenge. Min withdrawal: \$10.00 USDT.',
+                              style: TextStyle(color: Colors.white70, fontSize: 11),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 16),
 
                 // Payout Form Card
                 Container(
@@ -226,7 +320,7 @@ class _WalletScreenState extends State<WalletScreen> {
                       const SizedBox(height: 14),
 
                       // Quick Selection Chips
-                      const Text('Select Amount:', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                      const Text('Select Amount (Minimum \$10):', style: TextStyle(color: Colors.white70, fontSize: 12)),
                       const SizedBox(height: 8),
                       Row(
                         children: AppConstants.withdrawalTiersUsdt.map((tier) {
@@ -315,6 +409,32 @@ class _WalletScreenState extends State<WalletScreen> {
                         ),
                       ),
 
+                      const SizedBox(height: 14),
+
+                      // Binance Account Name TextField
+                      Text(
+                        selectedNetwork == 'Binance Pay'
+                            ? 'Binance Account Name (Full Name on Binance):'
+                            : 'Beneficiary / Account Name:',
+                        style: const TextStyle(color: Colors.white70, fontSize: 12),
+                      ),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: _binanceNameController,
+                        style: const TextStyle(color: Colors.white, fontSize: 14),
+                        decoration: InputDecoration(
+                          hintText: 'e.g. Ali Khan',
+                          hintStyle: const TextStyle(color: Colors.white38),
+                          filled: true,
+                          fillColor: AppTheme.backgroundDark,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: AppTheme.borderGlow),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        ),
+                      ),
+
                       const SizedBox(height: 20),
 
                       // Submit Button
@@ -324,7 +444,7 @@ class _WalletScreenState extends State<WalletScreen> {
                         child: ElevatedButton.icon(
                           onPressed: _isSubmitting ? null : _submitWithdrawal,
                           icon: const Icon(Icons.send_rounded, size: 18),
-                          label: Text('REDEEM \$${selectedAmountUsdt.toStringAsFixed(2)} USDT (${(selectedAmountUsdt * AppConstants.gemsPerUsdt).round()} GEMS)'),
+                          label: Text('REDEEM \$${selectedAmountUsdt.toStringAsFixed(2)} USDT (${(selectedAmountUsdt * AppConstants.gemsPerUsdt).round()} COINS)'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppTheme.neonGreen,
                             foregroundColor: Colors.black,

@@ -6,6 +6,7 @@ import 'models/grid_position.dart';
 import 'models/level_data.dart';
 import 'models/game_progress.dart';
 import 'painter/particle_system.dart';
+import '../core/services/audio_service.dart';
 
 enum GameState {
   playing,
@@ -52,7 +53,9 @@ class GameController extends ChangeNotifier {
   int comboCount = 0;
   GameState state = GameState.playing;
 
-  // Active Booster
+  // Limited Special Boosters Inventory (Bomb & Fireball)
+  int bombCount = 2;
+  int fireballCount = 2;
   BubbleType? activeBooster;
 
   GameController({required this.levelData}) {
@@ -78,8 +81,41 @@ class GameController extends ChangeNotifier {
     state = GameState.playing;
     particleSystem.clear();
 
+    // Reset default boosters for each level: 2 of each
+    bombCount = 2;
+    fireballCount = 2;
+    activeBooster = null;
+
     currentBubble = _getRandomAvailableColor();
     nextBubble = _getRandomAvailableColor();
+  }
+
+  bool activateBooster(BubbleType type) {
+    if (state != GameState.playing) return false;
+
+    if (type == BubbleType.bomb && bombCount > 0) {
+      bombCount--;
+      currentBubble = BubbleType.bomb;
+      activeBooster = BubbleType.bomb;
+      _hapticMedium();
+      notifyListeners();
+      return true;
+    } else if (type == BubbleType.fireball && fireballCount > 0) {
+      fireballCount--;
+      currentBubble = BubbleType.fireball;
+      activeBooster = BubbleType.fireball;
+      _hapticMedium();
+      notifyListeners();
+      return true;
+    }
+
+    return false;
+  }
+
+  void addBooster(BubbleType type, int count) {
+    if (type == BubbleType.bomb) bombCount += count;
+    if (type == BubbleType.fireball) fireballCount += count;
+    notifyListeners();
   }
 
   void addExtraShots(int count) {
@@ -231,6 +267,7 @@ class GameController extends ChangeNotifier {
     remainingShots--;
     state = GameState.shooting;
 
+    AudioService.instance.playShoot();
     _hapticTick();
     notifyListeners();
   }
@@ -240,13 +277,6 @@ class GameController extends ChangeNotifier {
     final temp = currentBubble;
     currentBubble = nextBubble;
     nextBubble = temp;
-    _hapticTick();
-    notifyListeners();
-  }
-
-  void activateBooster(BubbleType boosterType) {
-    if (state != GameState.playing) return;
-    activeBooster = boosterType;
     _hapticTick();
     notifyListeners();
   }
@@ -385,6 +415,7 @@ class GameController extends ChangeNotifier {
         particleSystem.spawnScore(center, comboLabel, const Color(0xFFFECA57), scale: comboCount > 1 ? 1.3 : 1.0);
 
         _hapticMedium();
+        AudioService.instance.playPop(combo: comboCount);
 
         // Drop any newly disconnected floating bubbles
         _dropFloatingBubbles();
@@ -421,6 +452,7 @@ class GameController extends ChangeNotifier {
     final center = GridPosition.getCenterOffset(centerCell.row, centerCell.col, bubbleRadius, gridStartX);
     particleSystem.spawnScore(center, 'BOOM! +$bombScore', const Color(0xFFFF5252), scale: 1.4);
     _hapticHeavy();
+    AudioService.instance.playPop(combo: 3);
     _dropFloatingBubbles();
   }
 
@@ -441,6 +473,7 @@ class GameController extends ChangeNotifier {
     final fireScore = count * 50;
     score += fireScore;
     _hapticHeavy();
+    AudioService.instance.playPop(combo: 2);
     _dropFloatingBubbles();
   }
 
@@ -457,8 +490,7 @@ class GameController extends ChangeNotifier {
       for (final neighbor in current.getNeighbors(baseCols: baseCols, maxRows: maxRows)) {
         if (!visited.contains(neighbor)) {
           final neighborType = grid[neighbor.row][neighbor.col];
-          if (neighborType != null &&
-              (neighborType == type || neighborType == BubbleType.rainbow || type == BubbleType.rainbow)) {
+          if (neighborType != null && neighborType == type) {
             visited.add(neighbor);
             queue.add(neighbor);
           }
@@ -518,6 +550,7 @@ class GameController extends ChangeNotifier {
         const Color(0xFF00CEC9),
         scale: 1.3,
       );
+      AudioService.instance.playPop(combo: 2);
     }
   }
 
@@ -544,8 +577,10 @@ class GameController extends ChangeNotifier {
       // Bonus score for remaining shots
       score += remainingShots * 250;
       _saveProgress();
+      AudioService.instance.playVictory();
     } else if (remainingShots <= 0 || lowestRowWithBubble >= maxRows - 3) {
       state = GameState.lost;
+      AudioService.instance.playGameOver();
     } else {
       state = GameState.playing;
     }
