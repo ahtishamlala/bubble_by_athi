@@ -4,6 +4,9 @@ class UserProfile {
   final String email;
   final String phone;
   final String avatarUrl;
+  final String? avatarPath; // Custom image path picked from camera/gallery
+  final String? dateOfBirth; // e.g. "1998-05-15"
+  final String? gender; // "Male", "Female", "Other"
   final int gemsBalance;
   final String referralCode;
   final String? referredBy;
@@ -17,6 +20,9 @@ class UserProfile {
     required this.email,
     this.phone = '',
     required this.avatarUrl,
+    this.avatarPath,
+    this.dateOfBirth,
+    this.gender,
     required this.gemsBalance,
     required this.referralCode,
     this.referredBy,
@@ -31,6 +37,9 @@ class UserProfile {
     String? email,
     String? phone,
     String? avatarUrl,
+    String? avatarPath,
+    String? dateOfBirth,
+    String? gender,
     int? gemsBalance,
     String? referralCode,
     String? referredBy,
@@ -44,6 +53,9 @@ class UserProfile {
       email: email ?? this.email,
       phone: phone ?? this.phone,
       avatarUrl: avatarUrl ?? this.avatarUrl,
+      avatarPath: avatarPath ?? this.avatarPath,
+      dateOfBirth: dateOfBirth ?? this.dateOfBirth,
+      gender: gender ?? this.gender,
       gemsBalance: gemsBalance ?? this.gemsBalance,
       referralCode: referralCode ?? this.referralCode,
       referredBy: referredBy ?? this.referredBy,
@@ -60,6 +72,9 @@ class UserProfile {
       'email': email,
       'phone': phone,
       'avatarUrl': avatarUrl,
+      'avatarPath': avatarPath,
+      'dateOfBirth': dateOfBirth,
+      'gender': gender,
       'gemsBalance': gemsBalance,
       'referralCode': referralCode,
       'referredBy': referredBy,
@@ -76,6 +91,9 @@ class UserProfile {
       email: json['email'] as String? ?? '',
       phone: json['phone'] as String? ?? '',
       avatarUrl: json['avatarUrl'] as String? ?? '',
+      avatarPath: json['avatarPath'] as String?,
+      dateOfBirth: json['dateOfBirth'] as String?,
+      gender: json['gender'] as String?,
       gemsBalance: (json['gemsBalance'] as num?)?.toInt() ?? 100,
       referralCode: json['referralCode'] as String? ?? 'PLAYER-7X9Y',
       referredBy: json['referredBy'] as String?,

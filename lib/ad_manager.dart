@@ -26,6 +26,13 @@ class AdManager {
   /// Initialize Mobile Ads SDK safely
   Future<void> initialize() async {
     if (_isInitialized) return;
+    if (!isMobile) {
+      _isInitialized = true;
+      if (!_initCompleter.isCompleted) {
+        _initCompleter.complete();
+      }
+      return;
+    }
     try {
       final status = await MobileAds.instance.initialize();
       _isInitialized = true;

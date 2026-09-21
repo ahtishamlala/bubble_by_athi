@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import '../ad_manager.dart';
 import '../banner_ad_widget.dart';
@@ -11,6 +13,7 @@ import '../games/match3_candy/match3_screen.dart';
 import '../games/memory_matrix/memory_matrix_screen.dart';
 import '../games/merge_2048/merge_2048_screen.dart';
 import '../models/game_stat.dart';
+import '../models/user_profile.dart';
 import 'compliance_screen.dart';
 import 'game_screen.dart';
 import 'login_dialog.dart';
@@ -49,6 +52,29 @@ class _HubDashboardScreenState extends State<HubDashboardScreen>
   void dispose() {
     _glowController.dispose();
     super.dispose();
+  }
+
+  Widget _buildUserAvatar(UserProfile? user) {
+    ImageProvider? img;
+    if (user?.avatarPath != null && user!.avatarPath!.isNotEmpty) {
+      if (!kIsWeb) {
+        final f = File(user.avatarPath!);
+        if (f.existsSync()) img = FileImage(f);
+      } else {
+        img = NetworkImage(user.avatarPath!);
+      }
+    } else if (user?.avatarUrl != null && user!.avatarUrl.isNotEmpty) {
+      img = NetworkImage(user.avatarUrl);
+    }
+
+    return CircleAvatar(
+      radius: 10,
+      backgroundColor: AppTheme.neonGreen.withValues(alpha: 0.3),
+      backgroundImage: img,
+      child: img == null
+          ? const Icon(Icons.person_rounded, size: 12, color: AppTheme.neonGreen)
+          : null,
+    );
   }
 
   void _launchGame(String gameId, int level) {
@@ -265,76 +291,41 @@ class _HubDashboardScreenState extends State<HubDashboardScreen>
 
                         const Spacer(),
 
-                        // Login Button or Verified User Chip
-                        if (AuthService.instance.isGuest)
-                          GestureDetector(
-                            onTap: () {
-                              showDialog(
-                                context: context,
-                                builder: (_) => const LoginDialog(),
-                              );
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                              margin: const EdgeInsets.only(right: 8),
-                              decoration: BoxDecoration(
-                                color: AppTheme.neonCyan.withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: AppTheme.neonCyan, width: 1.2),
-                              ),
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.login_rounded, color: AppTheme.neonCyan, size: 14),
-                                  SizedBox(width: 4),
-                                  Text(
-                                    'LOG IN',
-                                    style: TextStyle(
-                                      color: AppTheme.neonCyan,
-                                      fontWeight: FontWeight.w900,
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(builder: (_) => const ProfileScreen()),
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            margin: const EdgeInsets.only(right: 8),
+                            decoration: BoxDecoration(
+                              color: AppTheme.neonGreen.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: AppTheme.neonGreen, width: 1.2),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                _buildUserAvatar(AuthService.instance.currentUser),
+                                const SizedBox(width: 6),
+                                ConstrainedBox(
+                                  constraints: const BoxConstraints(maxWidth: 75),
+                                  child: Text(
+                                    AuthService.instance.currentUser?.displayName.split(' ').first ?? 'Player',
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      color: AppTheme.neonGreen,
+                                      fontWeight: FontWeight.bold,
                                       fontSize: 11,
                                     ),
                                   ),
-                                ],
-                              ),
-                            ),
-                          )
-                        else
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(builder: (_) => const ProfileScreen()),
-                              );
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                              margin: const EdgeInsets.only(right: 8),
-                              decoration: BoxDecoration(
-                                color: AppTheme.neonGreen.withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: AppTheme.neonGreen, width: 1.2),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.verified_rounded, color: AppTheme.neonGreen, size: 14),
-                                  const SizedBox(width: 4),
-                                  ConstrainedBox(
-                                    constraints: const BoxConstraints(maxWidth: 60),
-                                    child: Text(
-                                      AuthService.instance.currentUser?.displayName.split(' ').first ?? 'Player',
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        color: AppTheme.neonGreen,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 11,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
+                        ),
 
                         // Gems & USDT Pill (Tapping opens Wallet)
                         GestureDetector(
