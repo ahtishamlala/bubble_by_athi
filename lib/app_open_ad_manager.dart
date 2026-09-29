@@ -11,8 +11,8 @@ class AppOpenAdManager {
   factory AppOpenAdManager() => instance;
   AppOpenAdManager._internal();
 
-  // 👉 Aapka App Open Ad Unit ID (Intact & Preserved)
-  static const String _adUnitId = 'ca-app-pub-3993277664656708/4770454794';
+  // 👉 Live App Open Ad Unit ID
+  static const String _adUnitId = 'ca-app-pub-3993277664656708/3949263498';
 
   AppOpenAd? _appOpenAd;
   bool _isShowingAd = false;

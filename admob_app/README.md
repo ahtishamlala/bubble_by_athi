@@ -1,11 +1,12 @@
 # AdMob Mediation App (Flutter, iOS-ready)
 
 Is app me:
-- **App Open Ad** — app open hote hi show hota hai
-  - Ad Unit: `ca-app-pub-3993277664656708/4770454794`
-- **Banner Ad** — Home screen ke neeche hamesha show hota hai
-  - Ad Unit: `ca-app-pub-3993277664656708/1893492511`
-- **AdMob App ID**: `ca-app-pub-3993277664656708~3314385392`
+- **App Open Ad**: `ca-app-pub-3993277664656708/3949263498`
+- **Banner Ad**: `ca-app-pub-3993277664656708/6896000199`
+- **Interstitial Ad**: `ca-app-pub-3993277664656708/3631453315`
+- **Rewarded Ad**: `ca-app-pub-3993277664656708/1139267323`
+- **Rewarded Interstitial Ad**: `ca-app-pub-3993277664656708/8636367983`
+- **AdMob App ID**: `ca-app-pub-3993277664656708~7704675672`
 
 Best UI: gradient splash, card-based home screen, grid layout.
 
@@ -64,9 +65,12 @@ Third-party mediation platform (jaise AppLovin MAX, ironSource, etc.) par:
 
 1. Apne **AdMob account** se sign in karein us mediation platform par.
 2. Ad unit mapping me ye values fill karein:
-   - **AdMob App ID:** `ca-app-pub-3993277664656708~3314385392`
-   - **AdMob Ad Unit ID:** `ca-app-pub-3993277664656708/1893492511` (banner)
-   - App Open ke liye: `ca-app-pub-3993277664656708/4770454794`
+   - **AdMob App ID:** `ca-app-pub-3993277664656708~7704675672`
+   - **Banner:** `ca-app-pub-3993277664656708/6896000199`
+   - **App Open:** `ca-app-pub-3993277664656708/3949263498`
+   - **Interstitial:** `ca-app-pub-3993277664656708/3631453315`
+   - **Rewarded:** `ca-app-pub-3993277664656708/1139267323`
+   - **Rewarded Interstitial:** `ca-app-pub-3993277664656708/8636367983`
 3. Mediation platform ke docs check karke minimum SDK + adapter version
    match karein — har network ka apna requirement hota hai, isliye
    platform-specific documentation dekhna zaroori hai.

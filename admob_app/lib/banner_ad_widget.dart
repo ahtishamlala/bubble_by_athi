@@ -13,7 +13,7 @@ class BannerAdWidget extends StatefulWidget {
 
 class _BannerAdWidgetState extends State<BannerAdWidget> {
   // 👉 Aapka Banner Ad Unit ID
-  static const String _adUnitId = 'ca-app-pub-3993277664656708/1893492511';
+  static const String _adUnitId = 'ca-app-pub-3993277664656708/6896000199';
 
   BannerAd? _bannerAd;
   bool _isLoaded = false;

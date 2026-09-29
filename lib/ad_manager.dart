@@ -11,11 +11,12 @@ class AdManager {
   factory AdManager() => instance;
   AdManager._internal();
 
-  // 👉 Live Production Ad Unit IDs provided by User
-  static const String appOpenAdUnitId = 'ca-app-pub-3993277664656708/4770454794';
-  static const String bannerAdUnitId = 'ca-app-pub-3993277664656708/1893492511';
-  static const String interstitialAdUnitId = 'ca-app-pub-3993277664656708/4866543747';
-  static const String rewardedAdUnitId = 'ca-app-pub-3993277664656708/7592034577';
+  // 👉 Live Production Ad Unit IDs provided by User (App ID: ca-app-pub-3993277664656708~7704675672)
+  static const String appOpenAdUnitId = 'ca-app-pub-3993277664656708/3949263498';
+  static const String bannerAdUnitId = 'ca-app-pub-3993277664656708/6896000199';
+  static const String interstitialAdUnitId = 'ca-app-pub-3993277664656708/3631453315';
+  static const String rewardedAdUnitId = 'ca-app-pub-3993277664656708/1139267323';
+  static const String rewardedInterstitialAdUnitId = 'ca-app-pub-3993277664656708/8636367983';
 
   bool get isMobile => !kIsWeb && (Platform.isAndroid || Platform.isIOS);
 
@@ -323,6 +324,16 @@ class AdManager {
     }
 
     if (_rewardedAd == null) {
+      if (_rewardedInterstitialAd != null) {
+        debugPrint('[AdManager] RewardedAd not ready, immediately serving loaded RewardedInterstitialAd...');
+        showRewardedInterstitialAd(
+          context: context,
+          onUserEarnedReward: onUserEarnedReward,
+          onAdClosed: onAdClosed,
+        );
+        return;
+      }
+
       debugPrint('[AdManager] RewardedAd not ready, attempting immediate load...');
       loadRewardedAd(
         onLoaded: () {
@@ -335,6 +346,7 @@ class AdManager {
           }
         },
       );
+      loadRewardedInterstitialAd();
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -380,11 +392,108 @@ class AdManager {
     }
   }
 
-  /// Preload ads on app launch
+  // ----------------------------------------------------
+  // 4. REWARDED INTERSTITIAL AD (Live Unit: ca-app-pub-3993277664656708/8636367983)
+  // ----------------------------------------------------
+  RewardedInterstitialAd? _rewardedInterstitialAd;
+  bool _isLoadingRewardedInterstitial = false;
+
+  bool get isRewardedInterstitialReady => isMobile && _rewardedInterstitialAd != null;
+
+  void loadRewardedInterstitialAd({VoidCallback? onLoaded}) async {
+    if (!isMobile || _isLoadingRewardedInterstitial || isRewardedInterstitialReady) return;
+    await initializationFuture;
+    if (_isLoadingRewardedInterstitial || isRewardedInterstitialReady) return;
+
+    _isLoadingRewardedInterstitial = true;
+    debugPrint('[AdManager] Loading RewardedInterstitialAd ($rewardedInterstitialAdUnitId)...');
+
+    RewardedInterstitialAd.load(
+      adUnitId: rewardedInterstitialAdUnitId,
+      request: const AdRequest(),
+      rewardedInterstitialAdLoadCallback: RewardedInterstitialAdLoadCallback(
+        onAdLoaded: (ad) {
+          debugPrint('[AdManager] RewardedInterstitialAd loaded successfully!');
+          _rewardedInterstitialAd = ad;
+          _isLoadingRewardedInterstitial = false;
+          onLoaded?.call();
+        },
+        onAdFailedToLoad: (error) {
+          debugPrint('[AdManager] RewardedInterstitialAd failed to load: $error');
+          _isLoadingRewardedInterstitial = false;
+          _rewardedInterstitialAd = null;
+          Future.delayed(const Duration(seconds: 20), () {
+            if (!_isLoadingRewardedInterstitial && !isRewardedInterstitialReady) {
+              loadRewardedInterstitialAd();
+            }
+          });
+        },
+      ),
+    );
+  }
+
+  void showRewardedInterstitialAd({
+    required BuildContext context,
+    required void Function(RewardItem reward) onUserEarnedReward,
+    VoidCallback? onAdClosed,
+  }) {
+    if (!isMobile) {
+      onUserEarnedReward(RewardItem(50, 'Coins'));
+      onAdClosed?.call();
+      return;
+    }
+
+    if (_rewardedInterstitialAd == null) {
+      debugPrint('[AdManager] RewardedInterstitialAd not ready, falling back to regular rewarded ad...');
+      showRewardedAd(
+        context: context,
+        onUserEarnedReward: onUserEarnedReward,
+        onAdClosed: onAdClosed,
+      );
+      return;
+    }
+
+    _rewardedInterstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
+      onAdDismissedFullScreenContent: (ad) {
+        debugPrint('[AdManager] RewardedInterstitialAd dismissed');
+        try {
+          ad.dispose();
+        } catch (_) {}
+        _rewardedInterstitialAd = null;
+        loadRewardedInterstitialAd();
+        onAdClosed?.call();
+      },
+      onAdFailedToShowFullScreenContent: (ad, error) {
+        debugPrint('[AdManager] RewardedInterstitialAd failed to show: $error');
+        try {
+          ad.dispose();
+        } catch (_) {}
+        _rewardedInterstitialAd = null;
+        loadRewardedInterstitialAd();
+        onAdClosed?.call();
+      },
+    );
+
+    try {
+      _rewardedInterstitialAd!.show(
+        onUserEarnedReward: (adWithoutView, reward) {
+          debugPrint('[AdManager] User earned reward via RewardedInterstitial: ${reward.amount} ${reward.type}');
+          onUserEarnedReward(reward);
+        },
+      );
+    } catch (e) {
+      debugPrint('[AdManager] Error showing RewardedInterstitialAd: $e');
+      _rewardedInterstitialAd = null;
+      loadRewardedInterstitialAd();
+    }
+  }
+
+  /// Preload ads on app launch (All 5 live ad formats)
   void preloadAll() {
     if (!isMobile) return;
     loadAppOpenAd();
     loadInterstitialAd();
     loadRewardedAd();
+    loadRewardedInterstitialAd();
   }
 }

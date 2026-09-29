@@ -8,7 +8,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 /// jo app open hote hi (ya foreground me aane par) dikhta hai.
 class AppOpenAdManager {
   // 👉 Aapka App Open Ad Unit ID
-  static const String _adUnitId = 'ca-app-pub-3993277664656708/4770454794';
+  static const String _adUnitId = 'ca-app-pub-3993277664656708/3949263498';
 
   AppOpenAd? _appOpenAd;
   bool _isShowingAd = false;

@@ -5,7 +5,7 @@
 
 <!-- 1. Aapki AdMob App ID -->
 <key>GADApplicationIdentifier</key>
-<string>ca-app-pub-3993277664656708~3314385392</string>
+<string>ca-app-pub-3993277664656708~7704675672</string>
 
 <!-- 2. iOS 14+ par ads dikhane ke liye tracking permission ka reason -->
 <key>NSUserTrackingUsageDescription</key>

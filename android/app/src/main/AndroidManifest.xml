@@ -35,7 +35,7 @@
         <!-- Google AdMob Application ID -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3993277664656708~3314385392"/>
+            android:value="ca-app-pub-3993277664656708~7704675672"/>
         <!-- AdMob performance flags for safe non-blocking background initialization -->
         <meta-data
             android:name="com.google.android.gms.ads.flag.OPTIMIZE_INITIALIZATION"

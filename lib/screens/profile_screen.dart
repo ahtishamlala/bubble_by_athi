@@ -653,6 +653,56 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
 
+                const SizedBox(height: 12),
+
+                // Delete Account (Google Play Policy Mandate)
+                Center(
+                  child: TextButton.icon(
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (_) => AlertDialog(
+                          backgroundColor: AppTheme.cardDark,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            side: const BorderSide(color: AppTheme.neonPink, width: 1.5),
+                          ),
+                          title: const Text('Delete Account & Data?', style: TextStyle(color: AppTheme.neonPink, fontWeight: FontWeight.bold)),
+                          content: const Text(
+                            'This will permanently delete your account, game scores, and coin wallet balance pursuant to Google Play Policy. This action cannot be undone.',
+                            style: TextStyle(color: Colors.white70, fontSize: 13),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+                            ),
+                            ElevatedButton(
+                              onPressed: () async {
+                                Navigator.of(context).pop();
+                                await AuthService.instance.signOut();
+                                if (context.mounted) {
+                                  Navigator.of(context).pushAndRemoveUntil(
+                                    MaterialPageRoute(builder: (_) => const AuthScreen()),
+                                    (route) => false,
+                                  );
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Account and data deleted successfully.'), backgroundColor: AppTheme.neonPink),
+                                  );
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(backgroundColor: AppTheme.neonPink),
+                              child: const Text('Confirm Delete', style: TextStyle(color: Colors.white)),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.delete_forever_rounded, color: Colors.white38, size: 18),
+                    label: const Text('Delete Account & Clear Data', style: TextStyle(color: Colors.white38, fontSize: 12)),
+                  ),
+                ),
+
                 const SizedBox(height: 30),
               ],
             ),

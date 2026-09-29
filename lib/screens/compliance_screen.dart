@@ -148,6 +148,20 @@ class _ComplianceScreenState extends State<ComplianceScreen> {
                     '• Automated bots or fraud attempts result in immediate wallet freeze.',
             ),
 
+            const SizedBox(height: 12),
+
+            // Section 5: Account & Data Deletion (Google Play Mandate)
+            _buildSectionCard(
+              icon: Icons.delete_forever_rounded,
+              color: AppTheme.neonPink,
+              title: isUrdu ? '5. اکاؤنٹ اور ڈیٹا ڈیلیٹ کرنے کا حق' : '5. Account & Data Deletion',
+              content: isUrdu
+                  ? '• گوگل پلے پالیسی کے تحت ہر صارف کو اپنا اکاؤنٹ اور سارا ڈیٹا ڈیلیٹ کرنے کا مکمل اختیار ہے۔\n'
+                    '• آپ پروفائل میں جا کر "Delete Account" کا انتخاب کر سکتے ہیں یا سپورٹ ای میل (wwewrestling2k20@gmial.com) پر درخواست بھیج سکتے ہیں۔'
+                  : '• Pursuant to Google Play policy, users have full right to delete their account and personal records.\n'
+                    '• You can trigger account deletion directly in the Profile Screen or submit a deletion request via wwewrestling2k20@gmial.com. All cloud records will be permanently erased.',
+            ),
+
             const SizedBox(height: 16),
 
             // Crypto Standard Note
@@ -160,8 +174,8 @@ class _ComplianceScreenState extends State<ComplianceScreen> {
               ),
               child: Text(
                 isUrdu
-                    ? 'تبادلہ کا معیار: 1,000 اکرام جیمز = 1.00 USDT (بائننس پے / آن چین والٹ)'
-                    : 'Exchange Standard: 1,000 Ikram Gems = \$1.00 USDT (Binance Pay / TRC-20 / BEP-20)',
+                    ? 'تبادلہ کا معیار: 100,000 اکرام جیمز = 1.00 USDT (بائننس پے / آن چین والٹ) • کم از کم 10.00 USDT'
+                    : 'Exchange Standard: 100,000 Coins = \$1.00 USDT (Binance Pay / TRC-20 / BEP-20) • Minimum: \$10.00 USDT',
                 style: const TextStyle(color: AppTheme.neonGold, fontWeight: FontWeight.bold, fontSize: 12),
                 textAlign: TextAlign.center,
               ),
