@@ -1,7 +1,7 @@
 class AppConstants {
   // App Info
-  static const String appName = '6 in 1 Games';
-  static const String appTagline = '6-in-1 Cyber Arcade & Loyalty Hub';
+  static const String appName = 'Cyber Arcade';
+  static const String appTagline = 'Bubble Shooter & Highway Car Racer';
   static const String packageName = 'com.ikram.bubble_by_ikram';
   static const String appVersion = '1.0.0';
   static const String privacyPolicyUrl = 'https://ikramgaminghub.com/privacy-policy';
@@ -46,7 +46,7 @@ class AppConstants {
   }
 
   // Games Configuration
-  static const int totalGamesCount = 6;
+  static const int totalGamesCount = 2;
   static const int levelsPerGame = 40;
-  static const int totalLevelsCount = totalGamesCount * levelsPerGame; // 240
+  static const int totalLevelsCount = totalGamesCount * levelsPerGame; // 80
 }

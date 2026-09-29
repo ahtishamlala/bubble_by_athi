@@ -12,6 +12,7 @@ import 'core/services/security_service.dart';
 import 'core/services/wallet_service.dart';
 import 'core/theme/app_theme.dart';
 import 'game/models/game_progress.dart';
+import 'games/car_racing/services/car_garage_service.dart';
 import 'screens/auth_screen.dart';
 import 'screens/hub_dashboard_screen.dart';
 
@@ -37,6 +38,7 @@ void main() async {
     await WalletService.instance.init();
     await ReferralService.instance.init();
     await ArcadeHubService.instance.init();
+    await CarGarageService.instance.init();
     await GameProgress().init();
   } catch (e) {
     debugPrint('Service initialization error: $e');

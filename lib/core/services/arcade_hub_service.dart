@@ -52,43 +52,11 @@ class ArcadeHubService extends ChangeNotifier {
       unlockedLevel: 1,
     );
 
-    _games['block_puzzle'] = const GameStat(
-      id: 'block_puzzle',
-      title: 'Block Puzzle Jewel',
-      description: '8x8 grid drag-and-drop & combo line clears',
-      icon: '💎',
-      unlockedLevel: 1,
-    );
-
-    _games['match3_candy'] = const GameStat(
-      id: 'match3_candy',
-      title: 'Candy & Fruit Match-3',
-      description: '8x8 board swipe swap & chain reactions',
-      icon: '🍬',
-      unlockedLevel: 1,
-    );
-
-    _games['merge_2048'] = const GameStat(
-      id: 'merge_2048',
-      title: '2048 Merge Master',
-      description: '4x4 swipe grid & dynamic exponential merging',
-      icon: '🔢',
-      unlockedLevel: 1,
-    );
-
-    _games['memory_matrix'] = const GameStat(
-      id: 'memory_matrix',
-      title: 'Memory Matrix',
-      description: 'Dynamic grid card pair flipping & focus trainer',
-      icon: '🃏',
-      unlockedLevel: 1,
-    );
-
-    _games['knife_hit'] = const GameStat(
-      id: 'knife_hit',
-      title: 'Knife Hit Precision',
-      description: 'Rotating target, variable speed & boss stages',
-      icon: '🗡️',
+    _games['car_racing'] = const GameStat(
+      id: 'car_racing',
+      title: 'Highway Speed Racer 3D',
+      description: 'Multi-lane traffic, drift, nitro, obstacles & garage tuning',
+      icon: '🏎️',
       unlockedLevel: 1,
     );
   }

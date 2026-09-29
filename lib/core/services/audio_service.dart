@@ -65,4 +65,46 @@ class AudioService {
     if (isMuted) return;
     HapticFeedback.heavyImpact();
   }
+
+  // ---- CAR RACING AUDIO & HAPTICS ----
+
+  /// Nitro boost activated
+  void playTurbo() {
+    if (isMuted) return;
+    SystemSound.play(SystemSoundType.click);
+    HapticFeedback.heavyImpact();
+    Future.delayed(const Duration(milliseconds: 80), () {
+      HapticFeedback.mediumImpact();
+    });
+  }
+
+  /// Tire screech / drift
+  void playDrift() {
+    if (isMuted) return;
+    HapticFeedback.selectionClick();
+  }
+
+  /// High speed close call / Near-miss overtake
+  void playNearMiss() {
+    if (isMuted) return;
+    SystemSound.play(SystemSoundType.click);
+    HapticFeedback.mediumImpact();
+  }
+
+  /// Coin / Nitro canister pickup
+  void playCoinCollect() {
+    if (isMuted) return;
+    SystemSound.play(SystemSoundType.click);
+    HapticFeedback.lightImpact();
+  }
+
+  /// Car crash / obstacle collision
+  void playCrash() {
+    if (isMuted) return;
+    SystemSound.play(SystemSoundType.alert);
+    HapticFeedback.heavyImpact();
+    Future.delayed(const Duration(milliseconds: 100), () {
+      HapticFeedback.heavyImpact();
+    });
+  }
 }

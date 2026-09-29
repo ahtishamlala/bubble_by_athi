@@ -7,11 +7,8 @@ import '../core/services/arcade_hub_service.dart';
 import '../core/services/auth_service.dart';
 import '../core/services/wallet_service.dart';
 import '../core/theme/app_theme.dart';
-import '../games/block_puzzle/block_puzzle_screen.dart';
-import '../games/knife_hit/knife_hit_screen.dart';
-import '../games/match3_candy/match3_screen.dart';
-import '../games/memory_matrix/memory_matrix_screen.dart';
-import '../games/merge_2048/merge_2048_screen.dart';
+import '../games/car_racing/screens/car_garage_screen.dart';
+import '../games/car_racing/screens/car_racing_screen.dart';
 import '../models/game_stat.dart';
 import '../models/user_profile.dart';
 import 'compliance_screen.dart';
@@ -78,20 +75,8 @@ class _HubDashboardScreenState extends State<HubDashboardScreen>
       case 'bubble_shooter':
         screen = GameScreen(levelNumber: level);
         break;
-      case 'block_puzzle':
-        screen = BlockPuzzleScreen(levelNumber: level);
-        break;
-      case 'match3_candy':
-        screen = Match3Screen(levelNumber: level);
-        break;
-      case 'merge_2048':
-        screen = Merge2048Screen(levelNumber: level);
-        break;
-      case 'memory_matrix':
-        screen = MemoryMatrixScreen(levelNumber: level);
-        break;
-      case 'knife_hit':
-        screen = KnifeHitScreen(levelNumber: level);
+      case 'car_racing':
+        screen = CarRacingScreen(levelNumber: level);
         break;
       default:
         screen = GameScreen(levelNumber: level);
@@ -261,7 +246,7 @@ class _HubDashboardScreenState extends State<HubDashboardScreen>
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    '6 IN 1',
+                                    'CYBER ARCADE',
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w900,
@@ -270,7 +255,7 @@ class _HubDashboardScreenState extends State<HubDashboardScreen>
                                     ),
                                   ),
                                   Text(
-                                    'ARCADE GAMES',
+                                    'PRO RACER & BUBBLES',
                                     style: TextStyle(
                                       color: AppTheme.neonCyan,
                                       fontWeight: FontWeight.bold,
@@ -534,7 +519,7 @@ class _HubDashboardScreenState extends State<HubDashboardScreen>
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text(
-                          '6-IN-1 ARCADE ARENA (240 LEVELS)',
+                          'FEATURED ARCADE ARENA (80 LEVELS)',
                           style: TextStyle(
                             color: Colors.white70,
                             fontWeight: FontWeight.bold,
@@ -651,6 +636,27 @@ class _HubDashboardScreenState extends State<HubDashboardScreen>
                                     ),
                                     child: const Text('PLAY', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                                   ),
+                                  if (game.id == 'car_racing') ...[
+                                    const SizedBox(height: 4),
+                                    ElevatedButton.icon(
+                                      onPressed: () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(builder: (_) => const CarGarageScreen()),
+                                        );
+                                      },
+                                      icon: const Icon(Icons.build_circle_rounded, size: 12, color: Colors.black),
+                                      label: const Text(
+                                        'GARAGE',
+                                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.black),
+                                      ),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: AppTheme.neonGold,
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        minimumSize: Size.zero,
+                                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                      ),
+                                    ),
+                                  ],
                                   const SizedBox(height: 4),
                                   TextButton(
                                     onPressed: () => _showLevelSelectDialog(game),
