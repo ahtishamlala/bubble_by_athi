@@ -73,7 +73,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
                   child: Column(
                     children: [
                       const Text(
-                        '🎁 INVITE FRIENDS & EARN USDT GEMS',
+                        '🎁 INVITE FRIENDS & EARN BONUS GEMS',
                         style: TextStyle(
                           color: AppTheme.neonGold,
                           fontWeight: FontWeight.bold,

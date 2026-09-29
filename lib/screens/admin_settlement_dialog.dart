@@ -173,7 +173,7 @@ class _AdminSettlementDialogState extends State<AdminSettlementDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Enter your Admin PIN to inspect and settle crypto payouts:', style: TextStyle(color: Colors.white70, fontSize: 13)),
+            const Text('Enter your Admin PIN to inspect and settle reward payouts:', style: TextStyle(color: Colors.white70, fontSize: 13)),
             const SizedBox(height: 14),
             TextField(
               controller: _pinController,

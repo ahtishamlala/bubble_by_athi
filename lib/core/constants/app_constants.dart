@@ -1,9 +1,10 @@
 class AppConstants {
   // App Info
   static const String appName = '6 in 1 Games';
-  static const String appTagline = '6-in-1 Cyber Arcade & Crypto Rewards';
+  static const String appTagline = '6-in-1 Cyber Arcade & Loyalty Hub';
   static const String packageName = 'com.ikram.bubble_by_ikram';
   static const String appVersion = '1.0.0';
+  static const String privacyPolicyUrl = 'https://ikramgaminghub.com/privacy-policy';
 
   // Currency & Economy (Zero fiat mentions)
   static const String currencyName = 'Coins';
@@ -16,7 +17,7 @@ class AppConstants {
   static const double minWithdrawalUsdt = 10.0;
 
   static const List<double> withdrawalTiersUsdt = [10.0, 20.0, 50.0, 100.0];
-  static const String adminEmail = 'wwewrestling2k20@gmial.com';
+  static const String adminEmail = 'wwewrestling2k20@gmail.com';
   static const String withdrawalTimeline = '48 to 68 Hours';
 
   // Referral System

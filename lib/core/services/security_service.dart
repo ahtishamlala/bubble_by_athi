@@ -47,24 +47,11 @@ class SecurityService {
 
   Future<String> _generateFingerprint() async {
     try {
-      final deviceInfo = DeviceInfoPlugin();
-      String rawHardware = '';
-
-      if (!kIsWeb && Platform.isAndroid) {
-        final android = await deviceInfo.androidInfo;
-        rawHardware = '${android.brand}_${android.device}_${android.hardware}_${android.model}_${android.id}';
-      } else if (!kIsWeb && Platform.isIOS) {
-        final ios = await deviceInfo.iosInfo;
-        rawHardware = '${ios.name}_${ios.model}_${ios.systemName}_${ios.identifierForVendor}';
-      } else {
-        rawHardware = 'WEB_OR_DESKTOP_${DateTime.now().millisecondsSinceEpoch}';
-      }
-
-      final bytes = utf8.encode(rawHardware);
-      final hash = sha256.convert(bytes).toString().substring(0, 16).toUpperCase();
-      return 'DEV-$hash';
+      final randBytes = List<int>.generate(16, (i) => DateTime.now().microsecondsSinceEpoch % 256 + i);
+      final hash = sha256.convert(randBytes).toString().substring(0, 16).toUpperCase();
+      return 'APP-$hash';
     } catch (e) {
-      return 'DEV-${DateTime.now().millisecondsSinceEpoch.toRadixString(16).toUpperCase()}';
+      return 'APP-${DateTime.now().millisecondsSinceEpoch.toRadixString(16).toUpperCase()}';
     }
   }
 

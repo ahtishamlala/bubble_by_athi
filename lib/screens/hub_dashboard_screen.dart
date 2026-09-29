@@ -40,12 +40,7 @@ class _HubDashboardScreenState extends State<HubDashboardScreen>
       duration: const Duration(seconds: 3),
     )..repeat(reverse: true);
 
-    // Show App Open Ad on cold start after brief delay for smooth UI mounting
-    Future.delayed(const Duration(milliseconds: 1500), () {
-      if (mounted) {
-        AdManager.instance.showAppOpenAd(waitForLoad: true);
-      }
-    });
+    // Visual glow animation initialized smoothly
   }
 
   @override
@@ -327,7 +322,7 @@ class _HubDashboardScreenState extends State<HubDashboardScreen>
                           ),
                         ),
 
-                        // Gems & USDT Pill (Tapping opens Wallet)
+                        // Gems & Coins Pill (Tapping opens Wallet / Rewards)
                         GestureDetector(
                           onTap: () {
                             Navigator.of(context).push(
@@ -352,20 +347,11 @@ class _HubDashboardScreenState extends State<HubDashboardScreen>
                                 const Text('💎', style: TextStyle(fontSize: 14)),
                                 const SizedBox(width: 4),
                                 Text(
-                                  '${wallet.gemsBalance}',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                                const SizedBox(width: 6),
-                                Text(
-                                  '(\$${wallet.usdtEquivalent.toStringAsFixed(2)})',
+                                  '${wallet.gemsBalance} Coins',
                                   style: const TextStyle(
                                     color: AppTheme.neonGold,
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 11,
+                                    fontSize: 13,
                                   ),
                                 ),
                               ],

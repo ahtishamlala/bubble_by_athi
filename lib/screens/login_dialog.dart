@@ -105,7 +105,7 @@ class _LoginDialogState extends State<LoginDialog> {
               ),
               const SizedBox(height: 6),
               const Text(
-                'Log in with Google or Facebook to save your high scores, unlock crypto redemptions, and get +100 Welcome Gems!',
+                'Sign in to save your high scores, sync gameplay progress across devices, and get +100 Welcome Gems!',
                 style: TextStyle(color: Colors.white70, fontSize: 12, height: 1.4),
                 textAlign: TextAlign.center,
               ),

@@ -130,7 +130,7 @@ class _WalletScreenState extends State<WalletScreen> {
                       SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          '⏱️ Processing Time: 48 to 68 Hours\n(Ap k paise 48 se 68 ghante tak transfer ho jayenge)',
+                          '⏱️ Verification Time: 48 to 68 Hours\n(Loyalty and skill verification under review)',
                           style: TextStyle(color: AppTheme.neonGold, fontSize: 12, fontWeight: FontWeight.w600),
                         ),
                       ),
@@ -192,7 +192,7 @@ class _WalletScreenState extends State<WalletScreen> {
                   children: [
                     Icon(Icons.account_balance_wallet_rounded, color: AppTheme.neonCyan, size: 20),
                     SizedBox(width: 8),
-                    Text('Crypto Rewards Wallet'),
+                    Text('Arcade Rewards & Loyalty Vault'),
                   ],
                 ),
               ),
@@ -215,7 +215,7 @@ class _WalletScreenState extends State<WalletScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text(
-                              'TOTAL GEMS BALANCE',
+                              'TOTAL COINS BALANCE',
                               style: TextStyle(
                                 color: Colors.white54,
                                 fontSize: 12,
@@ -231,7 +231,7 @@ class _WalletScreenState extends State<WalletScreen> {
                                 border: Border.all(color: AppTheme.neonCyan.withValues(alpha: 0.4)),
                               ),
                               child: const Text(
-                                '100,000 Coins = \$1.00 USDT',
+                                '100,000 Coins = \$1.00 Value',
                                 style: TextStyle(color: AppTheme.neonCyan, fontSize: 11, fontWeight: FontWeight.bold),
                               ),
                             ),
@@ -252,7 +252,7 @@ class _WalletScreenState extends State<WalletScreen> {
                             ),
                             const SizedBox(width: 12),
                             Text(
-                              '≈ \$${usdt.toStringAsFixed(2)} USDT',
+                              '≈ \$${usdt.toStringAsFixed(2)} Tier',
                               style: const TextStyle(
                                 color: AppTheme.neonGold,
                                 fontSize: 18,
@@ -268,7 +268,7 @@ class _WalletScreenState extends State<WalletScreen> {
 
                 const SizedBox(height: 16),
 
-                // 48 - 68 Hours Processing Notice Banner
+                // 48 - 68 Hours Verification Notice Banner
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
@@ -278,19 +278,19 @@ class _WalletScreenState extends State<WalletScreen> {
                   ),
                   child: const Row(
                     children: [
-                      Icon(Icons.schedule_rounded, color: AppTheme.neonGold, size: 24),
+                      Icon(Icons.verified_user_rounded, color: AppTheme.neonGold, size: 24),
                       SizedBox(width: 10),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              '⏱️ Processing Time: 48 to 68 Hours',
+                              '⏱️ Fair-Play Verification: 48 to 68 Hours',
                               style: TextStyle(color: AppTheme.neonGold, fontWeight: FontWeight.bold, fontSize: 13),
                             ),
                             SizedBox(height: 2),
                             Text(
-                              'Ap k paise 48 se 68 ghante ke andar Binance account me bhej diye jayenge. Min withdrawal: \$10.00 USDT.',
+                              'Redemption requests undergo anti-bot and level completion audit before settlement. Minimum: \$10.00 equivalent.',
                               style: TextStyle(color: Colors.white70, fontSize: 11),
                             ),
                           ],
@@ -314,7 +314,7 @@ class _WalletScreenState extends State<WalletScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'Redeem USDT (Binance / On-Chain)',
+                        'Redeem Loyalty Rewards (Partner / UID)',
                         style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
                       ),
                       const SizedBox(height: 14),

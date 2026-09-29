@@ -6,6 +6,7 @@ import '../core/services/auth_service.dart';
 import '../core/services/email_otp_service.dart';
 import '../core/theme/app_theme.dart';
 import 'hub_dashboard_screen.dart';
+import 'privacy_policy_screen.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -345,7 +346,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   const SizedBox(height: 24),
 
                   // Toggle between Sign In / Sign Up (Only on non-OTP step)
-                  if (!_isOtpStep)
+                  if (!_isOtpStep) ...[
                     TextButton(
                       onPressed: () {
                         HapticFeedback.selectionClick();
@@ -364,6 +365,41 @@ class _AuthScreenState extends State<AuthScreen> {
                         ),
                       ),
                     ),
+                    const SizedBox(height: 12),
+                    // Play as Guest (Google Play App Access & Instant Trial)
+                    OutlinedButton.icon(
+                      onPressed: () async {
+                        HapticFeedback.mediumImpact();
+                        await AuthService.instance.continueAsGuest();
+                        if (context.mounted) {
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(builder: (_) => const HubDashboardScreen()),
+                          );
+                        }
+                      },
+                      icon: const Icon(Icons.videogame_asset_rounded, color: AppTheme.neonGreen),
+                      label: const Text('Play as Guest (Instant Play)', style: TextStyle(color: AppTheme.neonGreen, fontWeight: FontWeight.bold)),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: AppTheme.neonGreen, width: 1.2),
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    // Privacy Policy & Terms Link
+                    TextButton.icon(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => const PrivacyPolicyScreen()),
+                        );
+                      },
+                      icon: const Icon(Icons.privacy_tip_rounded, size: 16, color: Colors.white54),
+                      label: const Text(
+                        'Privacy Policy & Google Play Terms',
+                        style: TextStyle(color: Colors.white54, fontSize: 12),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),

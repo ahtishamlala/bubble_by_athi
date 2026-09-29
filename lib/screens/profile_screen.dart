@@ -8,6 +8,7 @@ import '../core/services/auth_service.dart';
 import '../core/theme/app_theme.dart';
 import '../models/user_profile.dart';
 import 'auth_screen.dart';
+import 'privacy_policy_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -633,6 +634,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 const SizedBox(height: 20),
 
+                const SizedBox(height: 16),
+
+                // Privacy Policy & Data Safety Button
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const PrivacyPolicyScreen()),
+                    );
+                  },
+                  icon: const Icon(Icons.privacy_tip_rounded, color: AppTheme.neonCyan),
+                  label: const Text('Privacy Policy & Data Safety', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.cardDark,
+                    side: const BorderSide(color: AppTheme.neonCyan),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  ),
+                ),
+
+                const SizedBox(height: 14),
+
                 // Sign Out / Switch Account
                 OutlinedButton.icon(
                   onPressed: () async {
@@ -680,14 +702,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ElevatedButton(
                               onPressed: () async {
                                 Navigator.of(context).pop();
-                                await AuthService.instance.signOut();
+                                await AuthService.instance.deleteAccountAndData();
                                 if (context.mounted) {
                                   Navigator.of(context).pushAndRemoveUntil(
                                     MaterialPageRoute(builder: (_) => const AuthScreen()),
                                     (route) => false,
                                   );
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Account and data deleted successfully.'), backgroundColor: AppTheme.neonPink),
+                                    const SnackBar(content: Text('Account and all data deleted permanently.'), backgroundColor: AppTheme.neonPink),
                                   );
                                 }
                               },

@@ -33,11 +33,11 @@ class ReferralService extends ChangeNotifier {
   Future<void> shareReferralCode() async {
     final code = userReferralCode;
     final message =
-        '🔥 Join me on Ikram Arcade Hub! Play 6-in-1 cyber arcade games and earn crypto loyalty gems redeemable for USDT!\n\n'
-        '🎁 Use my referral code *$code* to get 100 FREE Gems instantly!\n\n'
+        '🔥 Join me on ${AppConstants.appName}! Play 6-in-1 cyber arcade games and unlock high scores!\n\n'
+        '🎁 Use my referral code *$code* to get 100 FREE Arcade Gems instantly!\n\n'
         'Download now: https://play.google.com/store/apps/details?id=${AppConstants.packageName}';
 
-    await Share.share(message, subject: 'Claim 100 Gems on Ikram Arcade Hub!');
+    await Share.share(message, subject: 'Claim 100 Gems on ${AppConstants.appName}!');
   }
 
   Future<bool> redeemCode(String code) async {

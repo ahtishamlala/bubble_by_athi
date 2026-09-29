@@ -26,12 +26,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> with SingleTickerProvid
       duration: const Duration(seconds: 4),
     )..repeat();
 
-    // Show App Open Ad on cold start after brief delay for smooth UI mounting
-    Future.delayed(const Duration(milliseconds: 1500), () {
-      if (mounted) {
-        AdManager.instance.showAppOpenAd(waitForLoad: true);
-      }
-    });
+    // Animations initialized smoothly
   }
 
   @override

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../core/constants/app_constants.dart';
 import '../core/theme/app_theme.dart';
+import 'privacy_policy_screen.dart';
 
 class ComplianceScreen extends StatefulWidget {
   const ComplianceScreen({super.key});
@@ -157,14 +158,14 @@ class _ComplianceScreenState extends State<ComplianceScreen> {
               title: isUrdu ? '5. اکاؤنٹ اور ڈیٹا ڈیلیٹ کرنے کا حق' : '5. Account & Data Deletion',
               content: isUrdu
                   ? '• گوگل پلے پالیسی کے تحت ہر صارف کو اپنا اکاؤنٹ اور سارا ڈیٹا ڈیلیٹ کرنے کا مکمل اختیار ہے۔\n'
-                    '• آپ پروفائل میں جا کر "Delete Account" کا انتخاب کر سکتے ہیں یا سپورٹ ای میل (wwewrestling2k20@gmial.com) پر درخواست بھیج سکتے ہیں۔'
+                    '• آپ پروفائل میں جا کر "Delete Account" کا انتخاب کر سکتے ہیں یا سپورٹ ای میل (${AppConstants.adminEmail}) پر درخواست بھیج سکتے ہیں۔'
                   : '• Pursuant to Google Play policy, users have full right to delete their account and personal records.\n'
-                    '• You can trigger account deletion directly in the Profile Screen or submit a deletion request via wwewrestling2k20@gmial.com. All cloud records will be permanently erased.',
+                    '• You can trigger account deletion directly in the Profile Screen or submit a deletion request via ${AppConstants.adminEmail}. All cloud and local records will be permanently erased.',
             ),
 
             const SizedBox(height: 16),
 
-            // Crypto Standard Note
+            // Arcade Loyalty & Fair Play Note
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -174,12 +175,35 @@ class _ComplianceScreenState extends State<ComplianceScreen> {
               ),
               child: Text(
                 isUrdu
-                    ? 'تبادلہ کا معیار: 100,000 اکرام جیمز = 1.00 USDT (بائننس پے / آن چین والٹ) • کم از کم 10.00 USDT'
-                    : 'Exchange Standard: 100,000 Coins = \$1.00 USDT (Binance Pay / TRC-20 / BEP-20) • Minimum: \$10.00 USDT',
+                    ? 'ورچوئل آرکیڈ سکے اور جیمز صرف گیم کے تفریحی اور لیول بوسٹرز کے لیے ہیں۔ منصفانہ اور شفاف گیمنگ ہمارا نصب العین ہے۔'
+                    : 'Arcade Fair Play: In-game Coins & Gems are virtual arcade rewards earned through gameplay skill. Designed for level progression and player fun.',
                 style: const TextStyle(color: AppTheme.neonGold, fontWeight: FontWeight.bold, fontSize: 12),
                 textAlign: TextAlign.center,
               ),
             ),
+
+            const SizedBox(height: 16),
+
+            // Full Privacy Policy Button
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const PrivacyPolicyScreen()),
+                );
+              },
+              icon: const Icon(Icons.privacy_tip_rounded, color: Colors.black),
+              label: Text(
+                isUrdu ? 'مکمل پرائیویسی پالیسی اور ڈیٹا سیفٹی پڑھیں' : 'VIEW FULL PRIVACY POLICY & DATA SAFETY',
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.neonCyan,
+                foregroundColor: Colors.black,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+            const SizedBox(height: 12),
           ],
         ),
       ),

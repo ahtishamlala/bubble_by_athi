@@ -205,9 +205,39 @@ class AuthService extends ChangeNotifier {
     await updateProfileDetails(displayName: name);
   }
 
+  Future<void> continueAsGuest() async {
+    final randId = DateTime.now().millisecondsSinceEpoch % 10000;
+    _currentUser = UserProfile(
+      uid: 'guest_$randId',
+      displayName: 'Guest Player $randId',
+      email: '',
+      avatarUrl: '',
+      gemsBalance: 200,
+      referralCode: 'GUEST-$randId',
+      isGuest: true,
+      joinedAt: DateTime.now(),
+      totalLevelsCleared: 0,
+    );
+    await _saveToStorage();
+    notifyListeners();
+  }
+
   Future<void> signOut() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('auth_user_profile');
+    _currentUser = null;
+    notifyListeners();
+  }
+
+  /// Permanently deletes user account, credentials, and all local records pursuant to Google Play Policy
+  Future<void> deleteAccountAndData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('auth_user_profile');
+    await prefs.remove('auth_email');
+    await prefs.remove('auth_password');
+    await prefs.remove('auth_name');
+    await prefs.remove('wallet_withdrawal_history');
+    await prefs.remove('device_fingerprint');
     _currentUser = null;
     notifyListeners();
   }

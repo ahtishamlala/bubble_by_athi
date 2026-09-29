@@ -35,6 +35,11 @@ class AdManager {
       return;
     }
     try {
+      await MobileAds.instance.updateRequestConfiguration(
+        RequestConfiguration(
+          maxAdContentRating: MaxAdContentRating.t,
+        ),
+      );
       final status = await MobileAds.instance.initialize();
       _isInitialized = true;
       debugPrint('[AdManager] MobileAds initialized: ${status.adapterStatuses}');
@@ -192,8 +197,15 @@ class AdManager {
   // ----------------------------------------------------
   InterstitialAd? _interstitialAd;
   bool _isLoadingInterstitial = false;
+  DateTime? _lastInterstitialShownTime;
+  static const int _interstitialCooldownSeconds = 45; // Minimum 45s between interstitials (Google Play Disruptive Ads Policy)
 
   bool get isInterstitialReady => isMobile && _interstitialAd != null;
+  bool get canShowInterstitial {
+    if (_lastInterstitialShownTime == null) return true;
+    final diff = DateTime.now().difference(_lastInterstitialShownTime!).inSeconds;
+    return diff >= _interstitialCooldownSeconds;
+  }
 
   void loadInterstitialAd() async {
     if (!isMobile || _isLoadingInterstitial || isInterstitialReady) return;
@@ -227,9 +239,11 @@ class AdManager {
   }
 
   void showInterstitialAd({VoidCallback? onComplete}) {
-    if (!isMobile || _interstitialAd == null) {
+    if (!isMobile || _interstitialAd == null || !canShowInterstitial) {
       onComplete?.call();
-      loadInterstitialAd();
+      if (_interstitialAd == null) {
+        loadInterstitialAd();
+      }
       return;
     }
 
@@ -263,6 +277,7 @@ class AdManager {
     );
 
     try {
+      _lastInterstitialShownTime = DateTime.now();
       _interstitialAd!.show();
     } catch (e) {
       debugPrint('[AdManager] Error showing InterstitialAd: $e');
